@@ -36,19 +36,48 @@ def new_controller():
     Crea una instancia del modelo
     """
     #TODO: Llamar la función del modelo que crea las estructuras de datos
-    pass
+    control = model.new_data_structs()
+    return control
 
 
 # Funciones para la carga de datos
 
-def load_data(control, filename):
+def load_data(control, fli_file, air_file):
     """
     Carga los datos del reto
     """
     # TODO: Realizar la carga de datos
-    pass
+    start_time = get_time()
+    print("Cargando airports...")
+    load_airports(control, air_file)
+    print("Carga completa.")
+    print("Cargando fligths...")
+    data_structs = load_fligths(control, air_file)
+    print("-"*40)
+    print("CARGA COMPLETA")
+    print("-"*40)
+    print("\n")
+    
+    stop_time = get_time()
+    deltaTime = delta_time(start_time, stop_time)
+    
+    return data_structs, deltaTime
 
 
+def load_fligths(control, file):
+    fligths_file = cf.data_dir + file
+    input_file = csv.DictReader(open(fligths_file, encoding="utf-8"), delimiter=",")
+    for fligth in input_file:
+        model.add_job(control, fligth)
+    
+    return control
+
+def load_airports(control, file):
+    airport_file = cf.data_dir + file
+    input_file = csv.DictReader(open(airport_file, encoding="utf-8"), delimiter=",")
+    for airport in input_file:
+        model.add_airport(control, airport)
+    
 # Funciones de ordenamiento
 
 def sort(control):
