@@ -45,7 +45,8 @@ def new_controller():
         Se crea una instancia del controlador
     """
     #TODO: Llamar la función del controlador donde se crean las estructuras de datos
-    pass
+    control = controller.new_controller()
+    return control
 
 
 def print_menu():
@@ -62,21 +63,42 @@ def print_menu():
     print("0- Salir")
 
 
-def load_data(control):
+def load_data(control, flights_file, airports_file):
     """
     Carga los datos
     """
     #TODO: Realizar la carga de datos
-    pass
+    data, deltaTime = controller.load_data(control, flights_file, airports_file)
+    print_data(data, deltaTime)
 
 
-def print_data(control, id):
+def print_data(data, deltaTime):
     """
         Función que imprime un dato dado su ID
     """
     #TODO: Realizar la función para imprimir un elemento
-    pass
-
+    
+    numEdgesAirportDistance = controller.totalConnections(data, "AirportDistanceConnections")
+    numEdgesAirportTime = controller.totalConnections(data, "AirportTimeConnections")
+    
+    numVertexAirportDistance = controller.totalNumVertex(data, "AirportDistanceConnections")
+    numVertexAirportTime = controller.totalNumVertex(data, "AirportTimeConnections")
+    
+    print ("--------------------------------------------------------------------")
+    print("Tiempo [ms]: ", f"{deltaTime:.3f}", "||")
+    print ("--------------------------------------------------------------------")
+    
+    print ("--------------------------------------------------------------------")
+    print("Numero de vertices (Airports-distance): ", numVertexAirportDistance)
+    print("Numero de conexiones (Airports-distance): ", numEdgesAirportDistance)
+    print ("--------------------------------------------------------------------")  
+    print("Numero de vertices (Airports-time): ", numVertexAirportTime)
+    print("Numero de conexiones (Airports-time): ", numEdgesAirportTime)
+    print ("--------------------------------------------------------------------")
+    
+    
+    
+    
 def print_req_1(control):
     """
         Función que imprime la solución del Requerimiento 1 en consola
@@ -144,6 +166,9 @@ def print_req_8(control):
 # Se crea el controlador asociado a la vista
 control = new_controller()
 
+airports_file = "airports-2022.csv"
+flights_file = "flights-2022.csv"
+
 # main del reto
 if __name__ == "__main__":
     """
@@ -156,7 +181,7 @@ if __name__ == "__main__":
         inputs = input('Seleccione una opción para continuar\n')
         if int(inputs) == 1:
             print("Cargando información de los archivos ....\n")
-            data = load_data(control)
+            data = load_data(control, flights_file, airports_file )
         elif int(inputs) == 2:
             print_req_1(control)
 

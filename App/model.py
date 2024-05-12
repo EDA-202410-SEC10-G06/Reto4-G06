@@ -73,6 +73,8 @@ def new_data_structs():
             'AirportTimeeConnections': None,
         }
 
+        #Estructuras de Aeropuertos
+        
         data_structs["AirportsMap"] = mp.newMap(numelements = 14000,
                                                 maptype="PROBING",
                                                 cmpfunction = compareKeysId)
@@ -86,6 +88,11 @@ def new_data_structs():
                                               directed=False,
                                               size=14000,
                                               cmpfunction=compareKeysId)
+        
+        
+        
+        
+        
         return data_structs
     except Exception as exp:
         error.reraise(exp, 'model:new_data_structs')
@@ -104,10 +111,10 @@ def haversine(lat1, lon1, lat2, lon2):
     """
 
     # Convertir grados a radianes
-    lat1 = math.radians(lat1)
-    lon1 = math.radians(lon1)
-    lat2 = math.radians(lat2)
-    lon2 = math.radians(lon2)
+    lat1 = math.radians(float(lat1))
+    lon1 = math.radians(float(lon1))
+    lat2 = math.radians(float(lat2))
+    lon2 = math.radians(float(lon2))
     
     # Diferencias de latitud y longitud
     delta_lat = lat2 - lat1
@@ -131,55 +138,105 @@ def haversine(lat1, lon1, lat2, lon2):
 # Funciones para agregar informacion al modelo
 #========================================================
 
-def addFlight(data_structs, flight):
-    """
-    Función para agregar nuevos elementos a la lista
-    """
-    #TODO: Crear la función para agregar elementos a una lista
-    pass
-
-
-
-def addAirport(data_structs, airport):
+def addFlightConnection(data_structs,flight):
     """
     Función para agregar nuevos elementos a la lista
     """
     #TODO: Crear la función para agregar elementos a una lista
     
+    #lastFlight, flight = setAirportData(lastFlight, flight)
     try:
-        if not gr.containsVertex(data_structs['AirportConnections'], airport):
-            gr.insertVertex(data_structs['AirportConnections'], airport)
+                
+        origin = flight["ORIGEN"]
+        destination = flight["DESTINO"]
+        
+        timeFlight = flight["TIEMPO_VUELO"]
+                
+        addAirport(data_structs, origin, "AirportTimeConnections")
+        addAirport(data_structs, destination, "AirportTimeConnections")
+        
+        addTimeConnectionToAirports(data_structs, origin, destination, timeFlight)
+
         return data_structs
     except Exception as exp:
-        error.reraise(exp, 'model:addAirport')
+        error.reraise(exp, 'model:addAirportTimeConnection')
 
 
-def addAirportConnection(data_structs, airport):
+def addAirportConnection(data_structs, lastAirportP, airportP):
     """
     Función para agregar nuevos elementos a la lista
     """
     #TODO: Crear la función para agregar elementos a una lista
     
+    lastAirport, airport = setAirportData(lastAirportP, airportP)
+    
     try:
-        origin = formatVertex(lastservice)
-        destination = formatVertex(service)
-        cleanServiceDistance(lastservice, service)
-        distance = float(service['Distance']) - float(lastservice['Distance'])
+                
+        origin = lastAirport["ICAO"]
+        destination = airport["ICAO"]
+    
+        distance = haversine(airport["LATITUD"],airport["LONGITUD"],lastAirport["LATITUD"],lastAirport["LONGITUD"])
         distance = abs(distance)
-        addStop(analyzer, origin)
-        addStop(analyzer, destination)
-        addConnection(analyzer, origin, destination, distance)
-        addRouteStop(analyzer, service)
-        addRouteStop(analyzer, lastservice)
+        
+        addAirport(data_structs, origin, "AirportDistanceConnections")
+        addAirport(data_structs, destination, "AirportDistanceConnections")
+        
+        addDistanceConnectionToAirports(data_structs, origin, destination, distance)
+
         return data_structs
     except Exception as exp:
         error.reraise(exp, 'model:addAirportConnection')
 
+def addAirport(data_structs, airport, graph_str):
+    """
+    Función para agregar nuevos elementos a la lista
+    """
+    #TODO: Crear la función para agregar elementos a una lista
 
+    try:
+        if not gr.containsVertex(data_structs[graph_str], airport):
+            gr.insertVertex(data_structs[graph_str], airport)
+        return data_structs
+    except Exception as exp:
+        error.reraise(exp, 'model:addAirport')
+
+def addDistanceConnectionToAirports(data_structs, origin, destination, distance):
+    """
+    Adiciona un arco entre dos estaciones
+    """
+    edge = gr.getEdge(data_structs['AirportDistanceConnections'], origin, destination)
+    if edge is None:
+        gr.addEdge(data_structs['AirportDistanceConnections'], origin, destination, distance)
+    return data_structs
+
+def addTimeConnectionToAirports(data_structs, origin, destination, distance):
+    """
+    Adiciona un arco entre dos estaciones
+    """
+    edge = gr.getEdge(data_structs['AirportTimeConnections'], origin, destination)
+    if edge is None:
+        gr.addEdge(data_structs['AirportTimeConnections'], origin, destination, distance)
+    return data_structs
 
 #========================================================
 # Funciones para creacion de datos
 #========================================================
+
+def setAirportData(lastAirport, airport):
+    
+    #Convierte las coordenadas a sistema decimal con punto
+    #Nota: solo es necesario cambiar la caracteristica "LONGITUD". 
+    if "," in str(lastAirport["LONGITUD"]):  
+        lastAirport["LONGITUD"] = float(lastAirport["LONGITUD"].replace(",", "."))
+        lastAirport["LATITUD"] = float(lastAirport["LATITUD"].replace(",", "."))                         
+    
+    if "," in str(airport["LONGITUD"]):  
+        airport["LONGITUD"] = float(airport["LONGITUD"].replace(",", "."))
+        airport["LATITUD"] = float(airport["LATITUD"].replace(",", "."))  
+    
+    return lastAirport, airport
+    
+
 
 def new_data(id, info):
     """
@@ -271,6 +328,25 @@ def req_8(data_structs):
     """
     # TODO: Realizar el requerimiento 8
     pass
+
+
+#========================================================
+# Funciones de consulta sobre las estructuras
+#========================================================
+
+def totalConnections(analyzer, data_structure):
+    """
+    Retorna el total arcos del grafo
+    """
+    return gr.numEdges(analyzer[data_structure])
+
+
+def totalNumVertex(data, data_structure):
+    """
+    Retorna el total de estaciones (vertices) del grafo
+    """
+    return gr.numVertices(data[data_structure])
+
 
 #======================================================================
 # Funciones utilizadas para comparar elementos dentro de una estructura

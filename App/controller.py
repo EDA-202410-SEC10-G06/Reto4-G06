@@ -53,10 +53,10 @@ def load_data(control, flights_file, airports_file):
     
     #Carga de datos
     print("Cargando airports...")
-    load_airports(control, flights_file)
+    load_airports(control, airports_file)
     print("Carga completa.")
     print("Cargando fligths...")
-    load_flights(control, airports_file)
+    load_flights(control, flights_file)
     
     #Indicador de carga completa
     print("-"*40)
@@ -68,22 +68,22 @@ def load_data(control, flights_file, airports_file):
     stop_time = get_time()
     deltaTime = delta_time(start_time, stop_time)
     
-    return control["data_structs"], deltaTime
+    return control, deltaTime
 
 def load_flights(control, file):
     flights_file = cf.data_dir + file
-    input_file = csv.DictReader(open(flights_file, encoding="utf-8"), delimiter=",")
+    input_file = csv.DictReader(open(flights_file, encoding="utf-8"), delimiter=";")
     for flight in input_file:
-        model.addFlight(control["data_structs"], flight)
+        model.addFlightConnection(control, flight)
     
 
 def load_airports(control, file):
     airport_file = cf.data_dir + file
-    input_file = csv.DictReader(open(airport_file, encoding="utf-8"), delimiter=",")
+    input_file = csv.DictReader(open(airport_file, encoding="utf-8"), delimiter=";")
     lastAirport = None
     for airport in input_file:
         if lastAirport is not  None:
-            model.addAirport(control["data_structs"], lastAirport, airport)
+            model.addAirportConnection(control, lastAirport, airport)
         lastAirport = airport
     
     
@@ -173,6 +173,23 @@ def req_8(control):
     """
     # TODO: Modificar el requerimiento 8
     pass
+
+#========================================================
+# Funciones de consulta sobre las estructuras
+#========================================================
+
+def totalConnections(data, data_structure):
+    """
+    Total de enlaces entre las paradas
+    """
+    return model.totalConnections(data, data_structure)
+
+def totalNumVertex(data, data_structure):
+    """
+    Retorna el total de estaciones (vertices) del grafo
+    """
+    return model.totalNumVertex(data, data_structure)
+
 
 
 #========================================================
