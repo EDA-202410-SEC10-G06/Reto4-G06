@@ -39,22 +39,13 @@ se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
 
-# ___________________________________________________
-#  Variables
-# ___________________________________________________
-
-
-fligths_file = 'fligths-2022.csv'
-airports_file = 'airports-2022.csv'
-
 
 def new_controller():
     """
         Se crea una instancia del controlador
     """
     #TODO: Llamar la función del controlador donde se crean las estructuras de datos
-    control = controller.new_controller()
-    return control
+    pass
 
 
 def print_menu():
@@ -76,8 +67,7 @@ def load_data(control):
     Carga los datos
     """
     #TODO: Realizar la carga de datos
-    control = controller.load_data(control, fligths_file, airports_file)
-    return control
+    pass
 
 
 def print_data(control, id):
@@ -167,7 +157,6 @@ if __name__ == "__main__":
         if int(inputs) == 1:
             print("Cargando información de los archivos ....\n")
             data = load_data(control)
-            print_data(data)
         elif int(inputs) == 2:
             print_req_1(control)
 
