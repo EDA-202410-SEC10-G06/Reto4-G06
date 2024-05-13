@@ -82,7 +82,7 @@ def load_airports(control, file):
     input_file = csv.DictReader(open(airport_file, encoding="utf-8"), delimiter=";")
     lastAirport = None
     for airport in input_file:
-        model.addAirportToMap(control, airport)
+        model.addAirportToMap(control, airport, "None", "ICAO")
         if lastAirport is not  None:
             model.addAirportConnection(control, lastAirport, airport)
         lastAirport = airport
@@ -191,7 +191,11 @@ def totalNumVertex(data, data_structure):
     """
     return model.totalNumVertex(data, data_structure)
 
-
+def totalMapKeys(data, data_structure):
+    """
+    Retorna el total de llaves en un mapa
+    """
+    return model.totalMapKeys(data, data_structure)
 
 #========================================================
 # Funciones para medir tiempos de ejecucion
