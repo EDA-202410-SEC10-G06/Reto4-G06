@@ -74,7 +74,7 @@ def load_flights(control, file):
     flights_file = cf.data_dir + file
     input_file = csv.DictReader(open(flights_file, encoding="utf-8"), delimiter=";")
     for flight in input_file:
-        model.addFlightConnection(control, flight)
+        model.addFlightConnection(control,flight)
     
 
 def load_airports(control, file):
@@ -82,6 +82,7 @@ def load_airports(control, file):
     input_file = csv.DictReader(open(airport_file, encoding="utf-8"), delimiter=";")
     lastAirport = None
     for airport in input_file:
+        model.addAirportToMap(control, airport)
         if lastAirport is not  None:
             model.addAirportConnection(control, lastAirport, airport)
         lastAirport = airport

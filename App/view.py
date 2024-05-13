@@ -79,21 +79,41 @@ def print_data(data, deltaTime):
     #TODO: Realizar la función para imprimir un elemento
     
     numEdgesAirportDistance = controller.totalConnections(data, "AirportDistanceConnections")
-    numEdgesAirportTime = controller.totalConnections(data, "AirportTimeConnections")
-    
     numVertexAirportDistance = controller.totalNumVertex(data, "AirportDistanceConnections")
+        
+    numEdgesAirportTime = controller.totalConnections(data, "AirportTimeConnections")
     numVertexAirportTime = controller.totalNumVertex(data, "AirportTimeConnections")
+    
+    numEdgesAirportMilitar = controller.totalConnections(data, "AirportMilitarConnections")
+    numVertexAirportMilitar = controller.totalNumVertex(data, "AirportMilitarConnections")
+    
+    numEdgesAirportComercial = controller.totalConnections(data, "AirportComercialConnections")
+    numVertexAirportComercial = controller.totalNumVertex(data, "AirportComercialConnections")
+    
+    numEdgesAirportCarga = controller.totalConnections(data, "AirportCargaConnections")
+    numVertexAirportCarga = controller.totalNumVertex(data, "AirportCargaConnections")
     
     print ("--------------------------------------------------------------------")
     print("Tiempo [ms]: ", f"{deltaTime:.3f}", "||")
     print ("--------------------------------------------------------------------")
     
-    print ("--------------------------------------------------------------------")
+    print ("--------------------------- BY DISTANCE ----------------------------")
     print("Numero de vertices (Airports-distance): ", numVertexAirportDistance)
     print("Numero de conexiones (Airports-distance): ", numEdgesAirportDistance)
-    print ("--------------------------------------------------------------------")  
+    print ("----------------------------- BY TIME ------------------------------")  
     print("Numero de vertices (Airports-time): ", numVertexAirportTime)
     print("Numero de conexiones (Airports-time): ", numEdgesAirportTime)
+    print ("--------------------------------------------------------------------")
+    print("\n")
+    print ("----------------------------- MILITAR ------------------------------")  
+    print("Numero de vertices (Airports-distance): ", numVertexAirportMilitar)
+    print("Numero de conexiones (Airports-distance): ", numEdgesAirportMilitar)
+    print ("---------------------------- COMERCIAL -----------------------------")  
+    print("Numero de vertices (Airports-distance): ", numVertexAirportComercial)
+    print("Numero de conexiones (Airports-distance): ", numEdgesAirportComercial)
+    print ("------------------------------ CARGA -------------------------------")
+    print("Numero de vertices (Airports-time): ", numVertexAirportCarga)
+    print("Numero de conexiones (Airports-distance): ", numEdgesAirportCarga)
     print ("--------------------------------------------------------------------")
     
     

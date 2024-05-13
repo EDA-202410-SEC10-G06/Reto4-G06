@@ -70,7 +70,10 @@ def new_data_structs():
         data_structs = {
             'AirportsMap': None,
             'AirportDistanceConnections': None,
-            'AirportTimeeConnections': None,
+            'AirportTimeConnections': None,
+            'AirportComercialConnections': None,
+            'AirportCargaConnections': None,
+            'AirportMilitarConnections': None
         }
 
         #Estructuras de Aeropuertos
@@ -89,9 +92,22 @@ def new_data_structs():
                                               size=14000,
                                               cmpfunction=compareKeysId)
         
+        #Req 3, Peso: distancia
+        data_structs["AirportComercialConnections"] = gr.newGraph(datastructure='ADJ_LIST',
+                                              directed=False,
+                                              size=14000,
+                                              cmpfunction=compareKeysId)
         
-        
-        
+        #Req 4, Peso: distancia
+        data_structs["AirportCargaConnections"] = gr.newGraph(datastructure='ADJ_LIST',
+                                              directed=False,
+                                              size=14000,
+                                              cmpfunction=compareKeysId)
+        #Req 5, Peso: distancia
+        data_structs["AirportMilitarConnections"] = gr.newGraph(datastructure='ADJ_LIST',
+                                              directed=False,
+                                              size=14000,
+                                              cmpfunction=compareKeysId)
         
         return data_structs
     except Exception as exp:
@@ -151,12 +167,44 @@ def addFlightConnection(data_structs,flight):
         destination = flight["DESTINO"]
         
         timeFlight = flight["TIEMPO_VUELO"]
-                
-        addAirport(data_structs, origin, "AirportTimeConnections")
-        addAirport(data_structs, destination, "AirportTimeConnections")
         
-        addTimeConnectionToAirports(data_structs, origin, destination, timeFlight)
-
+        entry = mp.get(data_structs["AirportsMap"], flight["ORIGEN"])
+        origen = me.getValue(entry)
+        
+        entry = mp.get(data_structs["AirportsMap"], flight["DESTINO"])
+        destino = me.getValue(entry)
+        
+        distance = haversine(origen["LATITUD"],origen["LONGITUD"],destino["LATITUD"],destino["LONGITUD"])
+        distance = abs(distance)
+        
+        #Grafo con TODOS los vuelos    
+        addAirportToGraph(data_structs, origin, "AirportTimeConnections")
+        addAirportToGraph(data_structs, destination, "AirportTimeConnections")
+        
+        if flight["TIPO_VUELO"] == "MILITAR":
+            #Grafo con vuelos MILITARES
+            addAirportToGraph(data_structs, origin, "AirportMilitarConnections")
+            addAirportToGraph(data_structs, destination, "AirportMilitarConnections")
+            
+            addTimeConnectionToAirports(data_structs, origin, destination, timeFlight, "AirportMilitarConnections")
+        
+        elif flight["TIPO_VUELO"] == "AVIACION_COMERCIAL":
+            #Grafo con vuelos COMERCIALES
+            addAirportToGraph(data_structs, origin, "AirportComercialConnections")
+            addAirportToGraph(data_structs, destination, "AirportComercialConnections")
+            
+            addTimeConnectionToAirports(data_structs, origin, destination, timeFlight, "AirportComercialConnections")
+            
+        elif flight["TIPO_VUELO"] == "AVIACION_CARGA":
+            #Vuelos con vuelos de CARGA
+            addAirportToGraph(data_structs, origin, "AirportCargaConnections")
+            addAirportToGraph(data_structs, destination, "AirportCargaConnections")
+            
+            addTimeConnectionToAirports(data_structs, origin, destination, timeFlight, "AirportCargaConnections")
+        
+        #Añade una conexion por tiempo
+        addTimeConnectionToAirports(data_structs, origin, destination, timeFlight, "AirportTimeConnections")
+        
         return data_structs
     except Exception as exp:
         error.reraise(exp, 'model:addAirportTimeConnection')
@@ -171,15 +219,22 @@ def addAirportConnection(data_structs, lastAirportP, airportP):
     lastAirport, airport = setAirportData(lastAirportP, airportP)
     
     try:
-                
-        origin = lastAirport["ICAO"]
-        destination = airport["ICAO"]
+        LastAirportCoordinates = f'{lastAirport["LATITUD"]}/{lastAirport["LONGITUD"]}' 
+        airportCoordinates = f'{airport["LATITUD"]}/{airport["LONGITUD"]}' 
+        
+        #Vertices: coordenadas (latitud-longitud)
+        origin = LastAirportCoordinates
+        destination = airportCoordinates
+        
+        #Vertices Airports
+        #origin = lastAirport["ICAO"]
+        #destination = airport["ICAO"]
     
         distance = haversine(airport["LATITUD"],airport["LONGITUD"],lastAirport["LATITUD"],lastAirport["LONGITUD"])
         distance = abs(distance)
         
-        addAirport(data_structs, origin, "AirportDistanceConnections")
-        addAirport(data_structs, destination, "AirportDistanceConnections")
+        addAirportToGraph(data_structs, origin, "AirportDistanceConnections")
+        addAirportToGraph(data_structs, destination, "AirportDistanceConnections")
         
         addDistanceConnectionToAirports(data_structs, origin, destination, distance)
 
@@ -187,7 +242,13 @@ def addAirportConnection(data_structs, lastAirportP, airportP):
     except Exception as exp:
         error.reraise(exp, 'model:addAirportConnection')
 
-def addAirport(data_structs, airport, graph_str):
+def addAirportToMap (data_structs, airport):
+    """
+    Función para agregar nuevos elementos al mapa de Aiports
+    """
+    mp.put(data_structs["AirportsMap"], airport["ICAO"], airport)
+    
+def addAirportToGraph(data_structs, airport, graph_str):
     """
     Función para agregar nuevos elementos a la lista
     """
@@ -209,13 +270,13 @@ def addDistanceConnectionToAirports(data_structs, origin, destination, distance)
         gr.addEdge(data_structs['AirportDistanceConnections'], origin, destination, distance)
     return data_structs
 
-def addTimeConnectionToAirports(data_structs, origin, destination, distance):
+def addTimeConnectionToAirports(data_structs, origin, destination, distance, graph):
     """
     Adiciona un arco entre dos estaciones
     """
-    edge = gr.getEdge(data_structs['AirportTimeConnections'], origin, destination)
+    edge = gr.getEdge(data_structs[graph], origin, destination)
     if edge is None:
-        gr.addEdge(data_structs['AirportTimeConnections'], origin, destination, distance)
+        gr.addEdge(data_structs[graph], origin, destination, distance)
     return data_structs
 
 #========================================================
@@ -235,8 +296,6 @@ def setAirportData(lastAirport, airport):
         airport["LATITUD"] = float(airport["LATITUD"].replace(",", "."))  
     
     return lastAirport, airport
-    
-
 
 def new_data(id, info):
     """
