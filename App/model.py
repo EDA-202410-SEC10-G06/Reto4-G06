@@ -68,6 +68,7 @@ def new_data_structs():
     
     try:
         data_structs = {
+            'Airports': None,
             'AirportsMap': None,
             'AirportDistanceConnections': None,
             'AirportTimeConnections': None,
@@ -81,6 +82,11 @@ def new_data_structs():
         data_structs["AirportsMap"] = mp.newMap(numelements = 14000,
                                                 maptype="PROBING",
                                                 cmpfunction = compareKeysId)
+        
+        data_structs["Airports"] = gr.newGraph(datastructure='ADJ_LIST',
+                                              directed=False,
+                                              size=14000,
+                                              cmpfunction=compareKeysId)
         
         data_structs["AirportDistanceConnections"] = gr.newGraph(datastructure='ADJ_LIST',
                                               directed=False,
@@ -205,6 +211,10 @@ def addFlightConnection(data_structs,flight):
         #Añade una conexion por tiempo
         addTimeConnectionToAirports(data_structs, origin, destination, timeFlight, "AirportTimeConnections")
         
+        #Se añade al mapa de rutas
+        #addRouteAirport(data_structs, origen)
+        #addRouteAirport(data_structs, destino)
+        
         return data_structs
     except Exception as exp:
         error.reraise(exp, 'model:addAirportTimeConnection')
@@ -278,6 +288,43 @@ def addTimeConnectionToAirports(data_structs, origin, destination, distance, gra
     if edge is None:
         gr.addEdge(data_structs[graph], origin, destination, distance)
     return data_structs
+
+""""""
+def addRouteAirport(analyzer, airport):
+    """
+    Agrega a una estacion, una ruta que es servida en ese paradero
+    """
+    entry = mp.get(analyzer['Airports'], airport['ICAO'])
+    if entry is None:
+        lstroutes = lt.newList(cmpfunction=compareroutes)
+        lt.addLast(lstroutes, airport['ServiceNo'])
+        mp.put(analyzer['stops'], airport['BusStopCode'], lstroutes)
+    else:
+        lstroutes = entry['value']
+        info = airport['ServiceNo']
+        if not lt.isPresent(lstroutes, info):
+            lt.addLast(lstroutes, info)
+    return analyzer
+
+def addRouteConnections(analyzer):
+    """
+    Por cada vertice (cada estacion) se recorre la lista
+    de rutas servidas en dicha estación y se crean
+    arcos entre ellas para representar el cambio de ruta
+    que se puede realizar en una estación.
+    """
+    lstairports = mp.keySet(analyzer['Airports'])
+    for key in lt.iterator(lstairports):
+        lstroutes = mp.get(analyzer['Airports'], key)['value']
+        prevrout = None
+        for route in lt.iterator(lstroutes):
+            route = key + '-' + route
+            #if prevrout is not None:
+                #addConnection(analyzer, prevrout, route, 0)
+                #addConnection(analyzer, route, prevrout, 0)
+            #prevrout = route
+
+
 
 #========================================================
 # Funciones para creacion de datos
@@ -430,6 +477,16 @@ def compareKeysId(element, keyvalue):
     else:
         return -1
 
+def compareroutes(route1, route2):
+    """
+    Compara dos rutas
+    """
+    if (route1 == route2):
+        return 0
+    elif (route1 > route2):
+        return 1
+    else:
+        return -1
 
 #======================================================================
 # Funciones de ordenamiento
