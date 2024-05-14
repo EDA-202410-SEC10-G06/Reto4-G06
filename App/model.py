@@ -76,6 +76,7 @@ def new_data_structs():
             'AirportDistanceConnections': None,
             'AirportTimeConnections': None,
             'AirportComercialConnections': None,
+            'AirportComercialTimeConnections': None,
             'AirportCargaConnections': None,
             'AirportMilitarConnections': None
         }
@@ -124,6 +125,12 @@ def new_data_structs():
         
         #Req 3, Peso: distance
         data_structs["AirportComercialConnections"] = gr.newGraph(datastructure='ADJ_LIST',
+                                              directed=False,
+                                              size=14000,
+                                              cmpfunction=compareKeysId)
+        
+        #Req 7, Peso: tiempo
+        data_structs["AirportComercialTimeConnections"] = gr.newGraph(datastructure='ADJ_LIST',
                                               directed=False,
                                               size=14000,
                                               cmpfunction=compareKeysId)
@@ -240,13 +247,22 @@ def addFlightConnection(data_structs,flight):
         
         #Grafo con vuelos COMERCIALES
         elif flight["TIPO_VUELO"] == "AVIACION_COMERCIAL":
+            #Por distancia
             addAirportToGraph(data_structs, origin, "AirportComercialConnections")
             addAirportToGraph(data_structs, destination, "AirportComercialConnections")
+            
+            #Por tiempo
+            addAirportToGraph(data_structs, origin, "AirportComercialTimeConnections")
+            addAirportToGraph(data_structs, destination, "AirportComercialTimeConnections")
             
             addAirportToMap(data_structs, origin, flight, "COMERCIAL")
             addAirportToMap(data_structs, destination, flight, "COMERCIAL")
             
+            #Por distancia
             addTimeConnectionToAirports(data_structs, origin, destination, distance, "AirportComercialConnections")
+            
+            #Por tiempo
+            addTimeConnectionToAirports(data_structs, origin, destination, timeFlight, "AirportComercialTimeConnections")
         
         #Vuelos con vuelos de CARGA
         elif flight["TIPO_VUELO"] == "AVIACION_CARGA":
@@ -324,7 +340,8 @@ def addAirportToMap (data_structs, airport, flight, index):
         lt.addLast(lstflights, flight)
             
     elif index == "COMERCIAL":
-    
+        
+        #Por distancia
         entry = mp.get(data_structs['AirportsComercialMap'], airport)
         if entry is None:
             lstflights = lt.newList(cmpfunction=compareroutes)
@@ -332,7 +349,6 @@ def addAirportToMap (data_structs, airport, flight, index):
         else:
             lstflights = entry['value']
         lt.addLast(lstflights, flight)
-
         
     elif index == "MILITAR":
     

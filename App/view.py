@@ -32,6 +32,9 @@ assert cf
 from tabulate import tabulate
 import traceback
 
+import folium
+import os
+import webbrowser
 """
 La vista se encarga de la interacción con el usuario
 Presenta el menu de opciones y por cada seleccion
@@ -105,15 +108,75 @@ def print_data(data, deltaTime):
     print("Numero de conexiones (Airports-distance): ", controller.totalConnections(data, "AirportMilitarConnections"))
     print ("---------------------------- COMERCIAL -----------------------------")
     print("Numero de aeropuertos con tipo de vuelo militar: ", controller.totalMapKeys(data, "AirportsComercialMap"))
+    print("Por distancia:")
     print("Numero de vertices (Airports-distance): ", controller.totalNumVertex(data, "AirportComercialConnections"))
     print("Numero de conexiones (Airports-distance): ", controller.totalConnections(data, "AirportComercialConnections"))
+    print("Por tiempo: ")
+    print("Numero de vertices (Airports-distance): ", controller.totalNumVertex(data, "AirportComercialTimeConnections"))
+    print("Numero de conexiones (Airports-distance): ", controller.totalConnections(data, "AirportComercialTimeConnections"))
     print ("------------------------------ CARGA -------------------------------")
     print("Numero de aeropuertos con tipo de vuelo militar: ", controller.totalMapKeys(data, "AirportsCargaMap"))
     print("Numero de vertices (Airports-time): ", controller.totalNumVertex(data, "AirportCargaConnections"))
     print("Numero de conexiones (Airports-distance): ", controller.totalConnections(data, "AirportCargaConnections"))
     print ("--------------------------------------------------------------------")
-    
-    
+
+ 
+def print_tabulate(ofertas):
+
+    size = lt.size(ofertas)
+    headers = ["Titulo", "Fecha", "Nombre de la empresa", "Nivel de experticie", "Pais", 'Ciudad', 'Tamaño de la compañia', 'WorkPlace', 'Skills','Salario Min']
+    data = []
+    data_2 = []
+    i = 1
+    i_2 = int(lt.size(ofertas)) - 4
+    x = 0
+    x_2 = 0    
+    if size > 10:
+        while x != 5:
+                current = lt.getElement(ofertas, i)
+                i +=1
+                x += 1
+                rta_skill = ''
+                if not isinstance(current['skills'], str):
+                    for skill in lt.iterator(current['skills']):
+                        rta_skill = f'{rta_skill}{skill}/'
+                        rta_skill = f'{rta_skill}{skill}/'
+                else:
+                    rta_skill = current['skills']
+                    
+                data.append([current['title'], str(current["published_at"]), current["company_name"], current["experience_level"], current["country_code"], current['city'], current['company_size'], 
+                            current['workplace_type'], rta_skill, current["employment_types"]["salary_from"]])
+        while x_2 != 5:
+                current = lt.getElement(ofertas, i_2)
+                i_2 += 1
+                x_2 += 1
+                rta_skill = ''
+                if not isinstance(current['skills'], str):
+                    for skill in lt.iterator(current['skills']):
+                            rta_skill = f'{rta_skill}{skill}/'
+                else:
+                    rta_skill = current['skills']
+                    
+                data_2.append([current['title'], str(current["published_at"]), current["company_name"], current["experience_level"], current["country_code"], current['city'], current['company_size'], 
+                            current['workplace_type'], rta_skill, current["employment_types"]["salary_from"]])
+                
+        print(tabulate(data, headers=headers, tablefmt='fancy_grid'))
+        print(tabulate(data_2, headers=headers, tablefmt='fancy_grid'))
+        
+    else:
+        for job in lt.iterator(ofertas):
+
+            rta_skill = ''
+            if not isinstance(job['skills'], str):
+                for skill in lt.iterator(job['skills']):
+                        rta_skill = f'{rta_skill}{skill}/'
+            else:
+                rta_skill = job['skills']
+            
+            data.append([job['title'], str(job["published_at"]), job["company_name"], job["experience_level"], job["country_code"], job['city'], job['company_size'], 
+                        job['workplace_type'], rta_skill, job["employment_types"]["salary_from"]])
+        print(tabulate(data, headers=headers, tablefmt='fancy_grid'))
+        print('\n')    
     
     
 def print_req_1(control):
@@ -172,12 +235,48 @@ def print_req_7(control):
     pass
 
 
-def print_req_8(control):
+def print_req_8(airports):
     """
         Función que imprime la solución del Requerimiento 8 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 8
-    pass
+    print("\n")
+    print("-"*40)
+
+    directorio_actual = os.path.dirname(os.path.abspath(__file__))
+
+    mapa = folium.Map(location = (40.7128, -74.0060), zoom_start = 7)
+    
+    print("Construyendo mapa...")
+    print("\n")
+    
+    if lt.size(airports) > 200:
+        for airport in airports["elements"][:100]:
+            folium.Marker(location = (airport["LATITUD"],airport["LONGITUD"]),popup = airport["ICAO"], icon = folium.Icon("red")).add_to(mapa)
+        
+        for airport in airports["elements"][-100::]:
+            folium.Marker(location = (airport["LATITUD"],airport["LONGITUD"]),popup = airport["ICAO"], icon = folium.Icon("red")).add_to(mapa)
+            
+    else:
+        for airport in lt.iterator(airports):
+            folium.Marker(location = (airport["LATITUD"],airport["LONGITUD"]),popup = airport["ICAO"], icon = folium.Icon("red")).add_to(mapa)
+            
+    folium.LayerControl().add_to(mapa)
+    print("Mapa completado.")
+    print("\n")
+
+    nombre_archivo = "MapReq8.html"
+    ruta_completa = os.path.join(directorio_actual, nombre_archivo)
+    mapa.save(ruta_completa)
+    print("\n")
+    print("El archivo se guardó correctamente en:", ruta_completa)
+    print("\n")
+
+    print("Intentando abrir el archivo en el navegador...")
+    print("\n")
+    webbrowser.open("file://" + ruta_completa)
+    print("Archivo abierto.")
+    print("-"*40)
 
 
 # Se crea el controlador asociado a la vista
@@ -192,6 +291,8 @@ if __name__ == "__main__":
     Menu principal
     """
     working = True
+    lst_req_8 = lt.newList("ARRAY_LIST")
+    lst_req_8["elements"] = [0,0,0,0,0,0,0,0,0,0,0,0]
     #ciclo del menu
     while working:
         print_menu()
@@ -221,7 +322,16 @@ if __name__ == "__main__":
             print_req_7(control)
 
         elif int(inputs) == 9:
-            print_req_8(control)
+            opcion = int(input("Digite el requerimiento que desea observar en el mapa: "))
+            
+            if lt.getElement(lst_req_8,opcion) == 0:
+                print("\n")
+                print("---------------------------------------")
+                print("No ha cargado el requerimiento todavia.")
+                print("---------------------------------------")
+                print("\n")
+            else:
+                print_req_8(lt.getElement(lst_req_8,opcion))
 
         elif int(inputs) == 0:
             working = False

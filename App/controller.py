@@ -82,7 +82,10 @@ def load_flights(control, file):
     model.addRouteConnections(control, "AirportsMap","AirportTimeConnections")
     
     #Conexiones de mapa de los aeropuertos COMERCIALES
-    model.addRouteConnections(control, "AirportsComercialMap","AirportComercialConnections" )
+    #Por distancia:
+    model.addRouteConnections(control, "AirportsComercialMap","AirportComercialConnections")
+    #Por tiempo:
+    model.addRouteConnections(control, "AirportsComercialMap","AirportComercialTimeConnections")
     
     #Conexiones de mapa de los aeropuertos MILITARES
     model.addRouteConnections(control, "AirportsMilitarMap","AirportMilitarConnections" )
