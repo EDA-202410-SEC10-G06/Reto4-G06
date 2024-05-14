@@ -94,14 +94,14 @@ def new_data_structs():
                                                 maptype="PROBING",
                                                 
                                                 cmpfunction = compareKeysId)
+        
         data_structs["AirportsMilitarMap"] = mp.newMap(numelements = 14000,
                                                 maptype="PROBING",
                                                 cmpfunction = compareKeysId)
         
-        data_structs["Airports"] = gr.newGraph(datastructure='ADJ_LIST',
-                                              directed=False,
-                                              size=14000,
-                                              cmpfunction=compareKeysId)
+        data_structs["AirportsMap"] = mp.newMap(numelements = 14000,
+                                                maptype="PROBING",
+                                                cmpfunction = compareKeysId)
         
         #---------------------------------------
         #Gragos con conexiones entre aeropuertos
@@ -118,6 +118,9 @@ def new_data_structs():
                                               directed=False,
                                               size=14000,
                                               cmpfunction=compareKeysId)
+        
+        
+        
         
         #Req 3, Peso: distance
         data_structs["AirportComercialConnections"] = gr.newGraph(datastructure='ADJ_LIST',
@@ -221,6 +224,9 @@ def addFlightConnection(data_structs,flight):
         addAirportToGraph(data_structs, origin, "AirportDistanceConnections")
         addAirportToGraph(data_structs, destination, "AirportDistanceConnections")
         
+        #Añade al mapa con todos los aeropuertos
+        addAirportToMap(data_structs, origin, flight, "AIRPORTS")
+        addAirportToMap(data_structs, destination, flight, "AIRPORTS")
         
         #Grafo con vuelos MILITARES
         if flight["TIPO_VUELO"] == "MILITAR":
@@ -230,7 +236,7 @@ def addFlightConnection(data_structs,flight):
             addAirportToMap(data_structs, origin, flight, "MILITAR")
             addAirportToMap(data_structs, destination, flight, "MILITAR")
             
-            addTimeConnectionToAirports(data_structs, origin, destination, timeFlight, "AirportMilitarConnections")
+            addTimeConnectionToAirports(data_structs, origin, destination, distance, "AirportMilitarConnections")
         
         #Grafo con vuelos COMERCIALES
         elif flight["TIPO_VUELO"] == "AVIACION_COMERCIAL":
@@ -240,7 +246,7 @@ def addFlightConnection(data_structs,flight):
             addAirportToMap(data_structs, origin, flight, "COMERCIAL")
             addAirportToMap(data_structs, destination, flight, "COMERCIAL")
             
-            addTimeConnectionToAirports(data_structs, origin, destination, timeFlight, "AirportComercialConnections")
+            addTimeConnectionToAirports(data_structs, origin, destination, distance, "AirportComercialConnections")
         
         #Vuelos con vuelos de CARGA
         elif flight["TIPO_VUELO"] == "AVIACION_CARGA":
@@ -250,7 +256,7 @@ def addFlightConnection(data_structs,flight):
             addAirportToMap(data_structs, origin, flight, "CARGA")
             addAirportToMap(data_structs, destination, flight, "CARGA")
             
-            addTimeConnectionToAirports(data_structs, origin, destination, timeFlight, "AirportCargaConnections")
+            addTimeConnectionToAirports(data_structs, origin, destination, distance, "AirportCargaConnections")
         
         #Añade una conexion por tiempo
         addTimeConnectionToAirports(data_structs, origin, destination, timeFlight, "AirportTimeConnections")
@@ -337,6 +343,17 @@ def addAirportToMap (data_structs, airport, flight, index):
         else:
             lstflights = entry['value']
         lt.addLast(lstflights, flight)
+    
+    elif index == "AIRPORTS":
+        
+        entry = mp.get(data_structs['AirportsMap'], airport)
+        if entry is None:
+            lstflights = lt.newList(cmpfunction=compareroutes)
+            mp.put(data_structs['AirportsMap'], airport, lstflights)
+        else:
+            lstflights = entry['value']
+        lt.addLast(lstflights, flight)
+        
         
     
 def addAirportToGraph(data_structs, airport, graph_str):
@@ -372,41 +389,30 @@ def addTimeConnectionToAirports(data_structs, origin, destination, distance, gra
         gr.addEdge(data_structs[graph], origin, destination, distance)
     return data_structs
 
-
-def addRouteAirport(analyzer, airport):
-    """
-    Agrega a un Airport, una ruta que es servida en este.
-    """
-    entry = mp.get(analyzer['Airports'], airport['ICAO'])
-    if entry is None:
-        lstroutes = lt.newList(cmpfunction=compareroutes)
-        lt.addLast(lstroutes, airport['ServiceNo'])
-        mp.put(analyzer['stops'], airport['BusStopCode'], lstroutes)
-    else:
-        lstroutes = entry['value']
-        info = airport['ServiceNo']
-        if not lt.isPresent(lstroutes, info):
-            lt.addLast(lstroutes, info)
-    return analyzer
-
-
-def addRouteConnections(analyzer):
+def addRouteConnections(data_structs, map, graph):
     """
     Por cada vertice (cada Airport) se recorre la lista
     de rutas servidas en dicha estación y se crean
     arcos entre ellas para representar el cambio de ruta
     que se puede realizar en una estación.
     """
-    lstairports = mp.keySet(analyzer['Airports'])
+    lstairports = mp.keySet(data_structs[map])
     for key in lt.iterator(lstairports):
-        lstroutes = mp.get(analyzer['Airports'], key)['value']
-        prevrout = None
-        for route in lt.iterator(lstroutes):
-            route = key + '-' + route
-            #if prevrout is not None:
-                #addConnection(analyzer, prevrout, route, 0)
-                #addConnection(analyzer, route, prevrout, 0)
-            #prevrout = route
+        lstflights = mp.get(data_structs[map], key)['value']
+        prevflight = None
+        prevAirport = None
+        for flight in lt.iterator(lstflights):
+            
+            if flight["DESTINO"] != key:
+                airport = flight["DESTINO"]
+            elif flight["ORIGEN"] != key:
+                airport = flight["ORIGEN"]
+            
+            if prevflight is not None:
+                addDistanceConnectionToAirports(data_structs, prevAirport, airport, 0, graph)
+                addDistanceConnectionToAirports(data_structs, airport, prevAirport, 0, graph)
+            prevflight = flight
+            prevAirport = airport
 
 
 #========================================================
