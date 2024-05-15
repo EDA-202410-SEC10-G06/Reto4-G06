@@ -40,45 +40,82 @@ def new_controller():
     return control
 
 
+#========================================================
 # Funciones para la carga de datos
+#========================================================
 
-def load_data(control, fli_file, air_file):
+def load_data(control, flights_file, airports_file):
     """
     Carga los datos del reto
     """
     # TODO: Realizar la carga de datos
     start_time = get_time()
+    
+    #Carga de datos
     print("Cargando airports...")
-    load_airports(control, air_file)
+    load_airports(control, airports_file)
     print("Carga completa.")
     print("Cargando fligths...")
-    data_structs = load_fligths(control, air_file)
+    load_flights(control, flights_file)
+    
+    #Indicador de carga completa
     print("-"*40)
     print("CARGA COMPLETA")
     print("-"*40)
     print("\n")
     
+    #Instrucciones de tiempo de carga
     stop_time = get_time()
     deltaTime = delta_time(start_time, stop_time)
     
-    return data_structs, deltaTime
+    return control, deltaTime
 
-
-def load_fligths(control, file):
-    fligths_file = cf.data_dir + file
-    input_file = csv.DictReader(open(fligths_file, encoding="utf-8"), delimiter=",")
-    for fligth in input_file:
-        model.add_job(control, fligth)
+def load_flights(control, file):
+    flights_file = cf.data_dir + file
+    input_file = csv.DictReader(open(flights_file, encoding="utf-8"), delimiter=";")
+    for flight in input_file:
+        model.addFlightConnection(control,flight)
+        
+    #Conexiones de mapa de todos los aeropuertos por distancia
+    model.addRouteConnections(control, "AirportsMap","AirportDistanceConnections")
+    #Conexiones de mapa de todos los aeropuertos por tiempo
+    model.addRouteConnections(control, "AirportsMap","AirportTimeConnections")
+    
+    #Conexiones de mapa de los aeropuertos COMERCIALES
+    #Por distancia:
+    model.addRouteConnections(control, "AirportsComercialMap","AirportComercialConnections")
+    #Por tiempo:
+    model.addRouteConnections(control, "AirportsComercialMap","AirportComercialTimeConnections")
+    #Lista de aeropuertos comerciales:
+    model.addAirportToList(control, "AirportsComercialMap", "AirportsComercialList")
+    
+    #Conexiones de mapa de los aeropuertos MILITARES
+    model.addRouteConnections(control, "AirportsMilitarMap","AirportMilitarConnections" )
+    #Lista de aeropuertos militares:
+    model.addAirportToList(control, "AirportsMilitarMap", "AirportsMilitarList")
+    
+    #Conexiones de mapa de los aeropuertos CARGA
+    model.addRouteConnections(control, "AirportsCargaMap","AirportCargaConnections" )
+    #Lista de aeropuertos carga:
+    model.addAirportToList(control, "AirportsCargaMap", "AirportsCargaList")
     
     return control
 
 def load_airports(control, file):
     airport_file = cf.data_dir + file
-    input_file = csv.DictReader(open(airport_file, encoding="utf-8"), delimiter=",")
+    input_file = csv.DictReader(open(airport_file, encoding="utf-8"), delimiter=";")
+    lastAirport = None
     for airport in input_file:
-        model.add_airport(control, airport)
+        model.addAirportToMap(control, airport, "None", "ICAO")
+        if lastAirport is not  None:
+            model.addAirportConnection(control, lastAirport, airport)
+        lastAirport = airport
+    return control
     
+
+#========================================================
 # Funciones de ordenamiento
+#========================================================
 
 def sort(control):
     """
@@ -88,7 +125,9 @@ def sort(control):
     pass
 
 
+#========================================================
 # Funciones de consulta sobre el catálogo
+#========================================================
 
 def get_data(control, id):
     """
@@ -160,8 +199,32 @@ def req_8(control):
     # TODO: Modificar el requerimiento 8
     pass
 
+#========================================================
+# Funciones de consulta sobre las estructuras
+#========================================================
 
+def totalConnections(data, data_structure):
+    """
+    Total de enlaces entre las paradas
+    """
+    return model.totalConnections(data, data_structure)
+
+def totalNumVertex(data, data_structure):
+    """
+    Retorna el total de estaciones (vertices) del grafo
+    """
+    return model.totalNumVertex(data, data_structure)
+
+def totalMapKeys(data, data_structure):
+    """
+    Retorna el total de llaves en un mapa
+    """
+    return model.totalMapKeys(data, data_structure)
+
+#========================================================
 # Funciones para medir tiempos de ejecucion
+#========================================================
+
 
 def get_time():
     """

@@ -32,20 +32,15 @@ assert cf
 from tabulate import tabulate
 import traceback
 
+import folium
+import os
+import webbrowser
 """
 La vista se encarga de la interacción con el usuario
 Presenta el menu de opciones y por cada seleccion
 se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
-
-# ___________________________________________________
-#  Variables
-# ___________________________________________________
-
-
-fligths_file = 'fligths-2022.csv'
-airports_file = 'airports-2022.csv'
 
 
 def new_controller():
@@ -71,22 +66,154 @@ def print_menu():
     print("0- Salir")
 
 
-def load_data(control):
+def load_data(control, flights_file, airports_file):
     """
     Carga los datos
     """
     #TODO: Realizar la carga de datos
-    control = controller.load_data(control, fligths_file, airports_file)
-    return control
+    data, deltaTime = controller.load_data(control, flights_file, airports_file)
+    print_data(data, deltaTime)
 
 
-def print_data(control, id):
+def print_data(data, deltaTime):
     """
         Función que imprime un dato dado su ID
     """
     #TODO: Realizar la función para imprimir un elemento
-    pass
+        
+    print ("--------------------------------------------------------------------")
+    print("Tiempo [ms]: ", f"{deltaTime:.3f}", "||")
+    print ("--------------------------------------------------------------------")
+    print("\n")
+    print ("--------------------------------------------------------------------")
+    print("Total aeropuertos cargados: ", controller.totalMapKeys(data, "AirportsInfoMap"))
+    print ("--------------------------------------------------------------------")
+    print("\n")
+    print ("--------------------------- BY DISTANCE ----------------------------")
+    print("Airpots DOC:")
+    print("Numero de vertices (Airports-distance): ", controller.totalNumVertex(data, "AirportDistanceConnectionsAirportsDoc"))
+    print("Numero de conexiones (Airports-distance): ", controller.totalConnections(data, "AirportDistanceConnectionsAirportsDoc"))
+    print("Flight's DOC:")
+    print("Numero de vertices (Airports-distance): ", controller.totalNumVertex(data, "AirportDistanceConnections"))
+    print("Numero de conexiones (Airports-distance): ", controller.totalConnections(data, "AirportDistanceConnections"))
+    print("\n")
+    print ("----------------------------- BY TIME ------------------------------")  
+    print("Numero de vertices (Airports-time): ", controller.totalNumVertex(data, "AirportTimeConnections"))
+    print("Numero de conexiones (Airports-time): ", controller.totalConnections(data, "AirportTimeConnections"))
+    print ("--------------------------------------------------------------------")
+    print("\n")
+    print ("----------------------------- MILITAR ------------------------------") 
+    print("Numero de aeropuertos con tipo de vuelo militar: ", controller.totalMapKeys(data, "AirportsMilitarMap"))
+    print("Numero de vertices (Airports-distance): ", controller.totalNumVertex(data, "AirportMilitarConnections"))
+    print("Numero de conexiones (Airports-distance): ", controller.totalConnections(data, "AirportMilitarConnections"))
+    print_tabulate(data, data["AirportsMilitarList"], "CargaConcurrencia")
+    print ("---------------------------- COMERCIAL -----------------------------")
+    print("Numero de aeropuertos con tipo de vuelo militar: ", controller.totalMapKeys(data, "AirportsComercialMap"))
+    print("Por distancia:")
+    print("Numero de vertices (Airports-distance): ", controller.totalNumVertex(data, "AirportComercialConnections"))
+    print("Numero de conexiones (Airports-distance): ", controller.totalConnections(data, "AirportComercialConnections"))
+    print("Por tiempo: ")
+    print("Numero de vertices (Airports-distance): ", controller.totalNumVertex(data, "AirportComercialTimeConnections"))
+    print("Numero de conexiones (Airports-distance): ", controller.totalConnections(data, "AirportComercialTimeConnections"))
+    print_tabulate(data, data["AirportsComercialList"], "CargaConcurrencia")
+    print ("------------------------------ CARGA -------------------------------")
+    print("Numero de aeropuertos con tipo de vuelo militar: ", controller.totalMapKeys(data, "AirportsCargaMap"))
+    print("Numero de vertices (Airports-time): ", controller.totalNumVertex(data, "AirportCargaConnections"))
+    print("Numero de conexiones (Airports-distance): ", controller.totalConnections(data, "AirportCargaConnections"))
+    print_tabulate(data, data["AirportsCargaList"], "CargaConcurrencia")
+    print ("--------------------------------------------------------------------")
 
+ 
+def print_tabulate(data_structs, lista, condicion):
+
+    if condicion == "listas":
+        size = lt.size(lista)
+        headers = ["Titulo", "Fecha", "Nombre de la empresa", "Nivel de experticie", "Pais", 'Ciudad', 'Tamaño de la compañia', 'WorkPlace', 'Skills','Salario Min']
+        data = []
+        data_2 = []
+        i = 1
+        i_2 = int(lt.size(lista)) - 4
+        x = 0
+        x_2 = 0    
+        if size > 10:
+            while x != 5:
+                    current = lt.getElement(lista, i)
+                    i +=1
+                    x += 1
+                    rta_skill = ''
+                    if not isinstance(current['skills'], str):
+                        for skill in lt.iterator(current['skills']):
+                            rta_skill = f'{rta_skill}{skill}/'
+                            rta_skill = f'{rta_skill}{skill}/'
+                    else:
+                        rta_skill = current['skills']
+                        
+                    data.append([current['title'], str(current["published_at"]), current["company_name"], current["experience_level"], current["country_code"], current['city'], current['company_size'], 
+                                current['workplace_type'], rta_skill, current["employment_types"]["salary_from"]])
+            while x_2 != 5:
+                    current = lt.getElement(lista, i_2)
+                    i_2 += 1
+                    x_2 += 1
+                    rta_skill = ''
+                    if not isinstance(current['skills'], str):
+                        for skill in lt.iterator(current['skills']):
+                                rta_skill = f'{rta_skill}{skill}/'
+                    else:
+                        rta_skill = current['skills']
+                        
+                    data_2.append([current['title'], str(current["published_at"]), current["company_name"], current["experience_level"], current["country_code"], current['city'], current['company_size'], 
+                                current['workplace_type'], rta_skill, current["employment_types"]["salary_from"]])
+                    
+            print(tabulate(data, headers=headers, tablefmt='fancy_grid'))
+            print(tabulate(data_2, headers=headers, tablefmt='fancy_grid'))
+            
+        else:
+            for job in lt.iterator(lista):
+
+                rta_skill = ''
+                if not isinstance(job['skills'], str):
+                    for skill in lt.iterator(job['skills']):
+                            rta_skill = f'{rta_skill}{skill}/'
+                else:
+                    rta_skill = job['skills']
+                
+                data.append([job['title'], str(job["published_at"]), job["company_name"], job["experience_level"], job["country_code"], job['city'], job['company_size'], 
+                            job['workplace_type'], rta_skill, job["employment_types"]["salary_from"]])
+            print(tabulate(data, headers=headers, tablefmt='fancy_grid'))
+            print('\n')    
+    
+    elif condicion == "CargaConcurrencia":
+        
+        headers = ["NOMBRE", "ICAO", "CIUDAD", "CONCURRENCIA"]
+        
+        firstDicts = lista["elements"][0:5]
+        lastDicts = lista["elements"][-5::]
+        
+        first5 = []
+        last5 = []
+        
+        for dict in firstDicts:
+            airportICAO = dict["airport"]
+            airport = mp.get(data_structs["AirportsInfoMap"], airportICAO)["value"]
+            
+            first5.append([airport["NOMBRE"], airport["ICAO"], airport["CIUDAD"], dict["numeroVuelos"]])
+        
+        for dict in lastDicts:
+            airportICAO = dict["airport"]
+            airport = mp.get(data_structs["AirportsInfoMap"], airportICAO)["value"]
+            
+            last5.append([airport["NOMBRE"], airport["ICAO"], airport["CIUDAD"], dict["numeroVuelos"]])  
+        
+        print("Primeros 5: ")
+        print(tabulate(first5, headers=headers, tablefmt='fancy_grid'))
+        print("Ultimos 5: ")
+        print(tabulate(last5, headers=headers, tablefmt='fancy_grid'))
+        
+        
+        
+    
+    
+    
 def print_req_1(control):
     """
         Función que imprime la solución del Requerimiento 1 en consola
@@ -143,16 +270,55 @@ def print_req_7(control):
     pass
 
 
-def print_req_8(control):
+def print_req_8(airports):
     """
         Función que imprime la solución del Requerimiento 8 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 8
-    pass
+    print("\n")
+    print("-"*40)
+
+    directorio_actual = os.path.dirname(os.path.abspath(__file__))
+
+    mapa = folium.Map(location = (40.7128, -74.0060), zoom_start = 7)
+    
+    print("Construyendo mapa...")
+    print("\n")
+    
+    if lt.size(airports) > 200:
+        for airport in airports["elements"][:100]:
+            folium.Marker(location = (airport["LATITUD"],airport["LONGITUD"]),popup = airport["ICAO"], icon = folium.Icon("red")).add_to(mapa)
+        
+        for airport in airports["elements"][-100::]:
+            folium.Marker(location = (airport["LATITUD"],airport["LONGITUD"]),popup = airport["ICAO"], icon = folium.Icon("red")).add_to(mapa)
+            
+    else:
+        for airport in lt.iterator(airports):
+            folium.Marker(location = (airport["LATITUD"],airport["LONGITUD"]),popup = airport["ICAO"], icon = folium.Icon("red")).add_to(mapa)
+            
+    folium.LayerControl().add_to(mapa)
+    print("Mapa completado.")
+    print("\n")
+
+    nombre_archivo = "MapReq8.html"
+    ruta_completa = os.path.join(directorio_actual, nombre_archivo)
+    mapa.save(ruta_completa)
+    print("\n")
+    print("El archivo se guardó correctamente en:", ruta_completa)
+    print("\n")
+
+    print("Intentando abrir el archivo en el navegador...")
+    print("\n")
+    webbrowser.open("file://" + ruta_completa)
+    print("Archivo abierto.")
+    print("-"*40)
 
 
 # Se crea el controlador asociado a la vista
 control = new_controller()
+
+airports_file = "airports-2022.csv"
+flights_file = "flights-2022.csv"
 
 # main del reto
 if __name__ == "__main__":
@@ -160,14 +326,15 @@ if __name__ == "__main__":
     Menu principal
     """
     working = True
+    lst_req_8 = lt.newList("ARRAY_LIST")
+    lst_req_8["elements"] = [0,0,0,0,0,0,0,0,0,0,0,0]
     #ciclo del menu
     while working:
         print_menu()
         inputs = input('Seleccione una opción para continuar\n')
         if int(inputs) == 1:
             print("Cargando información de los archivos ....\n")
-            data = load_data(control)
-            print_data(data)
+            data = load_data(control, flights_file, airports_file )
         elif int(inputs) == 2:
             print_req_1(control)
 
@@ -190,7 +357,16 @@ if __name__ == "__main__":
             print_req_7(control)
 
         elif int(inputs) == 9:
-            print_req_8(control)
+            opcion = int(input("Digite el requerimiento que desea observar en el mapa: "))
+            
+            if lt.getElement(lst_req_8,opcion) == 0:
+                print("\n")
+                print("---------------------------------------")
+                print("No ha cargado el requerimiento todavia.")
+                print("---------------------------------------")
+                print("\n")
+            else:
+                print_req_8(lt.getElement(lst_req_8,opcion))
 
         elif int(inputs) == 0:
             working = False
