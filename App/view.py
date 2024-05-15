@@ -106,6 +106,7 @@ def print_data(data, deltaTime):
     print("Numero de aeropuertos con tipo de vuelo militar: ", controller.totalMapKeys(data, "AirportsMilitarMap"))
     print("Numero de vertices (Airports-distance): ", controller.totalNumVertex(data, "AirportMilitarConnections"))
     print("Numero de conexiones (Airports-distance): ", controller.totalConnections(data, "AirportMilitarConnections"))
+    print_tabulate(data, data["AirportsMilitarList"], "CargaConcurrencia")
     print ("---------------------------- COMERCIAL -----------------------------")
     print("Numero de aeropuertos con tipo de vuelo militar: ", controller.totalMapKeys(data, "AirportsComercialMap"))
     print("Por distancia:")
@@ -114,69 +115,103 @@ def print_data(data, deltaTime):
     print("Por tiempo: ")
     print("Numero de vertices (Airports-distance): ", controller.totalNumVertex(data, "AirportComercialTimeConnections"))
     print("Numero de conexiones (Airports-distance): ", controller.totalConnections(data, "AirportComercialTimeConnections"))
+    print_tabulate(data, data["AirportsComercialList"], "CargaConcurrencia")
     print ("------------------------------ CARGA -------------------------------")
     print("Numero de aeropuertos con tipo de vuelo militar: ", controller.totalMapKeys(data, "AirportsCargaMap"))
     print("Numero de vertices (Airports-time): ", controller.totalNumVertex(data, "AirportCargaConnections"))
     print("Numero de conexiones (Airports-distance): ", controller.totalConnections(data, "AirportCargaConnections"))
+    print_tabulate(data, data["AirportsCargaList"], "CargaConcurrencia")
     print ("--------------------------------------------------------------------")
 
  
-def print_tabulate(ofertas):
+def print_tabulate(data_structs, lista, condicion):
 
-    size = lt.size(ofertas)
-    headers = ["Titulo", "Fecha", "Nombre de la empresa", "Nivel de experticie", "Pais", 'Ciudad', 'Tamaño de la compañia', 'WorkPlace', 'Skills','Salario Min']
-    data = []
-    data_2 = []
-    i = 1
-    i_2 = int(lt.size(ofertas)) - 4
-    x = 0
-    x_2 = 0    
-    if size > 10:
-        while x != 5:
-                current = lt.getElement(ofertas, i)
-                i +=1
-                x += 1
-                rta_skill = ''
-                if not isinstance(current['skills'], str):
-                    for skill in lt.iterator(current['skills']):
-                        rta_skill = f'{rta_skill}{skill}/'
-                        rta_skill = f'{rta_skill}{skill}/'
-                else:
-                    rta_skill = current['skills']
+    if condicion == "listas":
+        size = lt.size(lista)
+        headers = ["Titulo", "Fecha", "Nombre de la empresa", "Nivel de experticie", "Pais", 'Ciudad', 'Tamaño de la compañia', 'WorkPlace', 'Skills','Salario Min']
+        data = []
+        data_2 = []
+        i = 1
+        i_2 = int(lt.size(lista)) - 4
+        x = 0
+        x_2 = 0    
+        if size > 10:
+            while x != 5:
+                    current = lt.getElement(lista, i)
+                    i +=1
+                    x += 1
+                    rta_skill = ''
+                    if not isinstance(current['skills'], str):
+                        for skill in lt.iterator(current['skills']):
+                            rta_skill = f'{rta_skill}{skill}/'
+                            rta_skill = f'{rta_skill}{skill}/'
+                    else:
+                        rta_skill = current['skills']
+                        
+                    data.append([current['title'], str(current["published_at"]), current["company_name"], current["experience_level"], current["country_code"], current['city'], current['company_size'], 
+                                current['workplace_type'], rta_skill, current["employment_types"]["salary_from"]])
+            while x_2 != 5:
+                    current = lt.getElement(lista, i_2)
+                    i_2 += 1
+                    x_2 += 1
+                    rta_skill = ''
+                    if not isinstance(current['skills'], str):
+                        for skill in lt.iterator(current['skills']):
+                                rta_skill = f'{rta_skill}{skill}/'
+                    else:
+                        rta_skill = current['skills']
+                        
+                    data_2.append([current['title'], str(current["published_at"]), current["company_name"], current["experience_level"], current["country_code"], current['city'], current['company_size'], 
+                                current['workplace_type'], rta_skill, current["employment_types"]["salary_from"]])
                     
-                data.append([current['title'], str(current["published_at"]), current["company_name"], current["experience_level"], current["country_code"], current['city'], current['company_size'], 
-                            current['workplace_type'], rta_skill, current["employment_types"]["salary_from"]])
-        while x_2 != 5:
-                current = lt.getElement(ofertas, i_2)
-                i_2 += 1
-                x_2 += 1
+            print(tabulate(data, headers=headers, tablefmt='fancy_grid'))
+            print(tabulate(data_2, headers=headers, tablefmt='fancy_grid'))
+            
+        else:
+            for job in lt.iterator(lista):
+
                 rta_skill = ''
-                if not isinstance(current['skills'], str):
-                    for skill in lt.iterator(current['skills']):
+                if not isinstance(job['skills'], str):
+                    for skill in lt.iterator(job['skills']):
                             rta_skill = f'{rta_skill}{skill}/'
                 else:
-                    rta_skill = current['skills']
-                    
-                data_2.append([current['title'], str(current["published_at"]), current["company_name"], current["experience_level"], current["country_code"], current['city'], current['company_size'], 
-                            current['workplace_type'], rta_skill, current["employment_types"]["salary_from"]])
+                    rta_skill = job['skills']
                 
-        print(tabulate(data, headers=headers, tablefmt='fancy_grid'))
-        print(tabulate(data_2, headers=headers, tablefmt='fancy_grid'))
+                data.append([job['title'], str(job["published_at"]), job["company_name"], job["experience_level"], job["country_code"], job['city'], job['company_size'], 
+                            job['workplace_type'], rta_skill, job["employment_types"]["salary_from"]])
+            print(tabulate(data, headers=headers, tablefmt='fancy_grid'))
+            print('\n')    
+    
+    elif condicion == "CargaConcurrencia":
         
-    else:
-        for job in lt.iterator(ofertas):
-
-            rta_skill = ''
-            if not isinstance(job['skills'], str):
-                for skill in lt.iterator(job['skills']):
-                        rta_skill = f'{rta_skill}{skill}/'
-            else:
-                rta_skill = job['skills']
+        headers = ["NOMBRE", "ICAO", "CIUDAD", "CONCURRENCIA"]
+        
+        firstDicts = lista["elements"][0:5]
+        lastDicts = lista["elements"][-5::]
+        
+        first5 = []
+        last5 = []
+        
+        for dict in firstDicts:
+            airportICAO = dict["airport"]
+            airport = mp.get(data_structs["AirportsInfoMap"], airportICAO)["value"]
             
-            data.append([job['title'], str(job["published_at"]), job["company_name"], job["experience_level"], job["country_code"], job['city'], job['company_size'], 
-                        job['workplace_type'], rta_skill, job["employment_types"]["salary_from"]])
-        print(tabulate(data, headers=headers, tablefmt='fancy_grid'))
-        print('\n')    
+            first5.append([airport["NOMBRE"], airport["ICAO"], airport["CIUDAD"], dict["numeroVuelos"]])
+        
+        for dict in lastDicts:
+            airportICAO = dict["airport"]
+            airport = mp.get(data_structs["AirportsInfoMap"], airportICAO)["value"]
+            
+            last5.append([airport["NOMBRE"], airport["ICAO"], airport["CIUDAD"], dict["numeroVuelos"]])  
+        
+        print("Primeros 5: ")
+        print(tabulate(first5, headers=headers, tablefmt='fancy_grid'))
+        print("Ultimos 5: ")
+        print(tabulate(last5, headers=headers, tablefmt='fancy_grid'))
+        
+        
+        
+    
     
     
 def print_req_1(control):

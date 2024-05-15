@@ -71,8 +71,11 @@ def new_data_structs():
             'Airports': None,
             'AirportsMap': None,
             'AirportsComercialMap': None,
+            'AirportsComercialList': None,
             'AirportsCargaMap': None,
+            'AirportsCargaList': None,
             'AirportsMilitarMap': None,
+            'AirportsMilitarList': None,
             'AirportDistanceConnections': None,
             'AirportTimeConnections': None,
             'AirportComercialConnections': None,
@@ -81,6 +84,10 @@ def new_data_structs():
             'AirportMilitarConnections': None
         }
 
+        
+        #---------------------------------------
+        #Mapas de aeropuertos
+        #---------------------------------------
         #Mapa de informacion de Aeropuertos
         data_structs["AirportsInfoMap"] = mp.newMap(numelements = 14000,
                                                 maptype="PROBING",
@@ -105,7 +112,17 @@ def new_data_structs():
                                                 cmpfunction = compareKeysId)
         
         #---------------------------------------
-        #Gragos con conexiones entre aeropuertos
+        #Listas ordenadas por concurrencia y lexicograficamente
+        #---------------------------------------
+        
+        data_structs["AirportsComercialList"] = lt.newList("ARRAY_LIST", compareElementInList)
+        
+        data_structs["AirportsCargaList"] = lt.newList("ARRAY_LIST", compareElementInList)
+        
+        data_structs["AirportsMilitarList"] = lt.newList("ARRAY_LIST", compareElementInList)
+        
+        #---------------------------------------
+        #Grafos con conexiones entre aeropuertos
         #---------------------------------------
         
         #Grafo de TODOS los aeropuertos. Peso: distance
@@ -431,6 +448,25 @@ def addRouteConnections(data_structs, map, graph):
             prevAirport = airport
 
 
+def addAirportToList(data_structs, map, lista):
+    """
+    Adiciona un airport a una lista
+    """
+    lstAirportsMap = mp.keySet(data_structs[map])
+        
+    for airport in lt.iterator(lstAirportsMap):
+        
+        NewEntry = {
+            "airport": airport,
+            "numeroVuelos": lt.size(mp.get(data_structs[map], airport)["value"])
+        }
+        
+        lt.addLast(data_structs[lista], NewEntry)
+        
+    ordered = merg.sort(data_structs[lista], ConcurenceAlphabeticCrit)    
+    data_structs[lista] = ordered
+    
+    
 #========================================================
 # Funciones para creacion de datos
 #========================================================
@@ -601,12 +637,20 @@ def compareroutes(route1, route2):
         return 1
     else:
         return -1
+    
+def compareElementInList (keyname, el2):
+    if keyname == el2["airport"]:
+        return 0
+    elif keyname > el2["airport"]:
+        return 1
+    else:
+        return -1 
 
 #======================================================================
 # Funciones de ordenamiento
 #======================================================================
 
-def sort_criteria(data_1, data_2):
+def ConcurenceAlphabeticCrit(data_1, data_2):
     """sortCriteria criterio de ordenamiento para las funciones de ordenamiento
 
     Args:
@@ -617,7 +661,14 @@ def sort_criteria(data_1, data_2):
         _type_: _description_
     """
     #TODO: Crear función comparadora para ordenar
-    pass
+    
+    if data_1["numeroVuelos"] > data_2["numeroVuelos"]:
+        return True
+    elif data_1["numeroVuelos"] == data_2["numeroVuelos"]:
+        return data_1["airport"] < data_2["airport"]
+    else:
+        return False
+    
 
 
 def sort(data_structs):

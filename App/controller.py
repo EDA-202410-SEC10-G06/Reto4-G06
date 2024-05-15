@@ -86,12 +86,18 @@ def load_flights(control, file):
     model.addRouteConnections(control, "AirportsComercialMap","AirportComercialConnections")
     #Por tiempo:
     model.addRouteConnections(control, "AirportsComercialMap","AirportComercialTimeConnections")
+    #Lista de aeropuertos comerciales:
+    model.addAirportToList(control, "AirportsComercialMap", "AirportsComercialList")
     
     #Conexiones de mapa de los aeropuertos MILITARES
     model.addRouteConnections(control, "AirportsMilitarMap","AirportMilitarConnections" )
+    #Lista de aeropuertos militares:
+    model.addAirportToList(control, "AirportsMilitarMap", "AirportsMilitarList")
     
     #Conexiones de mapa de los aeropuertos CARGA
     model.addRouteConnections(control, "AirportsCargaMap","AirportCargaConnections" )
+    #Lista de aeropuertos carga:
+    model.addAirportToList(control, "AirportsCargaMap", "AirportsCargaList")
     
     return control
 
