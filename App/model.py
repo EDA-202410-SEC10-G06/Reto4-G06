@@ -81,10 +81,10 @@ def new_data_structs():
             'AirportComercialConnections': None,
             'AirportComercialTimeConnections': None,
             'AirportCargaConnections': None,
-            'AirportMilitarConnections': None
+            'AirportMilitarConnections': None,
+            'search': None
         }
 
-        
         #---------------------------------------
         #Mapas de aeropuertos
         #---------------------------------------
@@ -507,6 +507,70 @@ def get_data(data_structs, id):
     pass
 
 
+def searchPathTo(analyzer, destStation, method):
+    """
+    searchPath retorna el camino de encontrado entre la estacion de inicio
+    y la estacion destino Se debe ejecutar primero la funcion searchPaths
+
+    Args:
+        analyzer (dict): diccionario con las estructuras de datos del modelo
+        destStation (vertice): estacion de destino para el recorrido
+        method (str, optional): algoritmo de busqueda. Por defecto es "dfs"
+
+    Returns:
+        stack: devuele una pila con el camino encontrado en la busqueda.
+    """
+    path = None
+    # TODO Lab 11, ejecutar pathTo por dfs
+    if method == "dfs":
+        path = dfs.pathTo(analyzer['search'], destStation)
+    # TODO Lab 11, ejecutar pathTo por bfs
+    elif method == "bfs":
+        path = bfs.pathTo(analyzer['search'], destStation)
+    return path
+
+    
+def searchPaths(data_structs, originICAO, method, graph):
+    """
+    searchPaths Calcula los caminos posibles desde una estacion de origen
+    y puede utilizar los algoritmos "dfs" o "bfs"
+
+    Args:
+        analyzer (dict): diccionario con las estructuras de datos del modelo
+        originStation (vertice): estacion de origen del recorrido
+        method (str, optional): algoritmo de busqueda. Por defecto es "dfs"
+
+    Returns:
+        dict: devuelve el analyzer del modelo
+    """
+    if method == 'dfs':
+        data_structs['search'] = dfs.DepthFirstSearch(data_structs[graph], originICAO)
+    elif method == 'bfs':
+        data_structs['search'] = bfs.BreathFirstSearch(data_structs[graph], originICAO)
+        
+    return data_structs
+
+def hasSearchPath(data_structs, destICAO, method, graph):
+    """
+    hasSearchPath indica si existe un camino desde la estacion inicial a
+    la estación destino. Se debe ejecutar primero la funcion searchPaths()
+
+    Args:
+        analyzer (dict): diccionario con las estructuras de datos del modelo
+        destStation (vertice): estacion de destino para el recorrido
+        method (str, optional): algoritmo de busqueda. Por defecto es "dfs"
+    """
+    
+    if data_structs['search'] is None:
+        raise ValueError("Debe ejecutar primero la funcion searchPath")
+    
+    if method == 'dfs':
+        data_structs['search'] = dfs.hasPathTo(data_structs[graph], destICAO)
+    elif method == 'bfs':
+        data_structs['search'] = bfs.hasPathTo(data_structs[graph], destICAO)
+        
+    return data_structs
+
 def data_size(data_structs):
     """
     Retorna el tamaño de la lista de datos
@@ -515,12 +579,35 @@ def data_size(data_structs):
     pass
 
 
-def req_1(data_structs):
+def req_1(data_structs, origen_latitud, origen_longitud, destino_latitud, destino_longitud):
     """
     Función que soluciona el requerimiento 1
     """
     # TODO: Realizar el requerimiento 1
-    pass
+    desviacionlongitud = (30/78.62)
+    desviacionLatitud = (30/111.32)
+    lst_keys = mp.keySet(data_structs['AirportsInfoMap'])
+    origin = None
+    destino = None
+
+    encontro_origin = False
+    encontro_destino = False
+    
+    for key in lt.iterator(lst_keys):
+        airport = mp.get(data_structs['AirportsInfoMap'], key)['value']
+
+        longitudKey = airport['LONGITUD']
+        latitudKey = airport['LATITUD']
+        
+        if ((longitudKey >= (origen_longitud-desviacionlongitud)) and (longitudKey <= (origen_longitud + desviacionlongitud))) and (latitudKey >= (origen_latitud-desviacionLatitud) and latitudKey <= (origen_latitud + desviacionLatitud)) and (encontro_origin == False):
+            origin = key
+            encontro_origin = True
+        if ((longitudKey >= (destino_longitud-desviacionlongitud)) and (longitudKey <= (destino_longitud + desviacionlongitud))) and (latitudKey >= (destino_latitud-desviacionLatitud) and latitudKey <= (destino_latitud + desviacionLatitud)) and (encontro_destino == False):
+            destino = key
+            encontro_destino = True
+        if encontro_destino == True and encontro_origin == True:
+            break
+                
 
 
 def req_2(data_structs):

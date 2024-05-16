@@ -336,6 +336,14 @@ if __name__ == "__main__":
             print("Cargando información de los archivos ....\n")
             data = load_data(control, flights_file, airports_file )
         elif int(inputs) == 2:
+            origen_latitud = input('Ingrese la latitud de origen: ')
+            origen_longitud = input('Ingrese la longitud de origen: ')
+            
+            destino_latitud = input('Ingrese la latitud de destino: ')
+            destino_longitud = input('Ingrese la longitud de destino: ')
+            
+            data, deltatime = controller.req_1(control, origen_latitud, origen_longitud, destino_latitud, destino_longitud)
+            
             print_req_1(control)
 
         elif int(inputs) == 3:
