@@ -77,7 +77,8 @@ def new_data_structs():
             'AirportTimeConnections': None,
             'AirportComercialConnections': None,
             'AirportCargaConnections': None,
-            'AirportMilitarConnections': None
+            'AirportMilitarConnections': None,
+            'ConcurrenceList': None
         }
 
         #Mapa de informacion de Aeropuertos
@@ -102,6 +103,9 @@ def new_data_structs():
                                               directed=False,
                                               size=14000,
                                               cmpfunction=compareKeysId)
+        
+        data_structs['ConcurrenceList'] = lt.newList('ARRAY_LIST')
+        data_structs['AirportAdded'] = lt.newList('ARRAY_LIST')
         
         #---------------------------------------
         #Gragos con conexiones entre aeropuertos
@@ -221,7 +225,19 @@ def addFlightConnection(data_structs,flight):
         addAirportToGraph(data_structs, origin, "AirportDistanceConnections")
         addAirportToGraph(data_structs, destination, "AirportDistanceConnections")
         
-        
+        # =============== Lista de concurrencia ===================
+        indice_origin = lt.isPresent(data_structs['AirportAdded'], origin)
+        if indice_origin == 0:
+            lt.addLast(data_structs['ConcurrenceList'], origin)
+            crea_nuevo = {'nombre': origin, 'conteo': 1}
+            lt.addLast(data_structs['ConcurrenceList'], crea_nuevo)
+            
+        else:
+            handle_2 = lt.getElement(data_structs['ConcurrenceList'], indice_origin)
+            handle_2['conteo'] += 1
+            lt.changeInfo(data_structs['ConcurrenceList'], indice_origin, handle_2)
+            
+        # === ==== ==== =================================================
         #Grafo con vuelos MILITARES
         if flight["TIPO_VUELO"] == "MILITAR":
             addAirportToGraph(data_structs, origin, "AirportMilitarConnections")
