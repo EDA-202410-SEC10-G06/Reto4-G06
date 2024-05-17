@@ -90,10 +90,6 @@ def print_data(data, deltaTime):
     print ("--------------------------------------------------------------------")
     print("\n")
     print ("--------------------------- BY DISTANCE ----------------------------")
-    print("Airpots DOC:")
-    print("Numero de vertices (Airports-distance): ", controller.totalNumVertex(data, "AirportDistanceConnectionsAirportsDoc"))
-    print("Numero de conexiones (Airports-distance): ", controller.totalConnections(data, "AirportDistanceConnectionsAirportsDoc"))
-    print("Flight's DOC:")
     print("Numero de vertices (Airports-distance): ", controller.totalNumVertex(data, "AirportDistanceConnections"))
     print("Numero de conexiones (Airports-distance): ", controller.totalConnections(data, "AirportDistanceConnections"))
     print("\n")
@@ -336,12 +332,13 @@ if __name__ == "__main__":
             print("Cargando información de los archivos ....\n")
             data = load_data(control, flights_file, airports_file )
         elif int(inputs) == 2:
-            origen_latitud = input('Ingrese la latitud de origen: ')
-            origen_longitud = input('Ingrese la longitud de origen: ')
+            #origen_latitud = float(input('Ingrese la latitud de origen: '))
+            #origen_longitud = float(input('Ingrese la longitud de origen: '))
             
-            destino_latitud = input('Ingrese la latitud de destino: ')
-            destino_longitud = input('Ingrese la longitud de destino: ')
+            #destino_latitud = float(input('Ingrese la latitud de destino: '))
+            #destino_longitud = float(input('Ingrese la longitud de destino: '))
             
+            origen_latitud, origen_longitud, destino_latitud, destino_longitud = float("4.601992771389502"), float("10.507688799813222"), float("-74.06610470441926"), float("-75.4706488665794")
             data, deltatime = controller.req_1(control, origen_latitud, origen_longitud, destino_latitud, destino_longitud)
             
             print_req_1(control)

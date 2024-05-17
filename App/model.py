@@ -82,6 +82,7 @@ def new_data_structs():
             'AirportComercialTimeConnections': None,
             'AirportCargaConnections': None,
             'AirportMilitarConnections': None,
+            
             'search': None
         }
 
@@ -578,6 +579,9 @@ def data_size(data_structs):
     #TODO: Crear la función para obtener el tamaño de una lista
     pass
 
+#========================================================
+# Requerimientos 
+#========================================================
 
 def req_1(data_structs, origen_latitud, origen_longitud, destino_latitud, destino_longitud):
     """
@@ -607,7 +611,14 @@ def req_1(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
             encontro_destino = True
         if encontro_destino == True and encontro_origin == True:
             break
-                
+    
+    searchPaths(data_structs, origin, 'dfs', "AirportComercialConnections")
+    print(data_structs["search"])
+    searchPathTo(data_structs, destino, 'dfs')
+    
+    print("-"*40)
+    print(data_structs["search"])
+    
 
 
 def req_2(data_structs):
