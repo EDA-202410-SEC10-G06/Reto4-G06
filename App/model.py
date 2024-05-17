@@ -82,7 +82,7 @@ def new_data_structs():
             'AirportComercialTimeConnections': None,
             'AirportCargaConnections': None,
             'AirportMilitarConnections': None,
-            
+            'searchMST': None,           
             'search': None
         }
 
@@ -713,7 +713,18 @@ def req_3(data_structs):
     Función que soluciona el requerimiento 3
     """
     # TODO: Realizar el requerimiento 3
-    pass
+    
+    ConcurrenceAirport = lt.firstElement(data_structs["AirportsComercialList"])
+    primSearch = prim.PrimMST(data_structs["AirportComercialConnections"], ConcurrenceAirport["airport"])
+    
+    edgesMST = prim.edgesMST(data_structs["AirportComercialConnections"], primSearch)
+    
+    totalWeight = prim.weightMST(data_structs["AirportComercialConnections"], primSearch)
+    print(totalWeight)
+    
+    
+    
+    return 0
 
 
 def req_4(data_structs):

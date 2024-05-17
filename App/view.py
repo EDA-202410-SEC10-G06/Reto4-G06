@@ -390,7 +390,8 @@ if __name__ == "__main__":
             print_req_2(control, data, deltaTime )
 
         elif int(inputs) == 4:
-            print_req_3(control)
+            data, deltaTime = controller.req_3(control)
+            print_req_3(control, data, deltaTime)
 
         elif int(inputs) == 5:
             print_req_4(control)
