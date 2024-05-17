@@ -647,12 +647,65 @@ def req_1(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
     
     
 
-def req_2(data_structs):
+def req_2(data_structs, origen_latitud, origen_longitud, destino_latitud, destino_longitud):
     """
     Función que soluciona el requerimiento 2
     """
     # TODO: Realizar el requerimiento 2
-    pass
+    lst_keys = mp.keySet(data_structs['AirportsInfoMap'])
+    
+    totalDistancia = 0
+    totalTiempo = 0
+    NumAirports = 0
+    
+    lstAirports  = lt.newList("ARRAY_LIST")
+    
+    origin = None
+    destino = None
+
+    encontro_origin = False
+    encontro_destino = False
+    
+    for key in lt.iterator(lst_keys):
+        airport = mp.get(data_structs['AirportsInfoMap'], key)['value']
+
+        longitudKey = airport['LONGITUD']
+        latitudKey = airport['LATITUD']
+        
+        distanceOrigen = haversine(latitudKey, longitudKey, origen_latitud, origen_longitud)
+        distanceDestin = haversine(latitudKey, longitudKey, destino_latitud, destino_longitud)
+        
+        if distanceOrigen <= 30 and (encontro_origin == False):
+            origin = key
+            totalDistancia += distanceOrigen
+            encontro_origin = True
+        if distanceDestin <= 30 and (encontro_destino == False):
+            destino = key
+            totalDistancia += distanceDestin
+            encontro_destino = True
+            
+        if encontro_destino == True and encontro_origin == True:
+            break
+        
+    searchPaths(data_structs, origin, 'bfs', "AirportComercialConnections")
+    path = searchPathTo(data_structs, destino, 'bfs')
+    
+    prevAirport = None
+    for airport in lt.iterator(path):
+        airportValue = mp.get(data_structs["AirportsInfoMap"], airport)["value"]
+        lt.addLast(lstAirports, airportValue)
+        if prevAirport is not None:
+            edge = gr.getEdge(data_structs["AirportComercialConnections"], prevAirport, airport)
+            totalDistancia += edge["weight"]
+            edge = gr.getEdge(data_structs["AirportComercialTimeConnections"], prevAirport, airport)
+            totalTiempo += float(edge["weight"])
+        prevAirport = airport
+    
+    NumAirports = lt.size(path)
+    
+    results = totalDistancia, NumAirports, lstAirports, origin, destino, totalTiempo
+    
+    return results
 
 
 def req_3(data_structs):
