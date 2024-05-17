@@ -544,7 +544,13 @@ def req_4(data_structs):
     Función que soluciona el requerimiento 4
     """
     # TODO: Realizar el requerimiento 4
-    pass
+    mayor_concurrencia = lt.firstElement(data_structs["AirportsCargaList"])
+    aeropuerto = mayor_concurrencia["airport"]
+    #print(aeropuerto)
+    #print(data_structs["AirportsCargaList"])
+    graph = prim.PrimMST(data_structs["AirportCargaConnections"], aeropuerto)
+    #print(gr.numVertices(data_structs["AirportCargaConnections"]))
+    print(graph)
 
 
 def req_5(data_structs):

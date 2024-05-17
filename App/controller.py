@@ -166,7 +166,14 @@ def req_4(control):
     Retorna el resultado del requerimiento 4
     """
     # TODO: Modificar el requerimiento 4
-    pass
+    start_time = get_time()
+    
+    result = model.req_4(control)
+    
+    stop_time = get_time()
+    deltaTime = delta_time(start_time, stop_time)
+    
+    return result, deltaTime
 
 
 def req_5(control):

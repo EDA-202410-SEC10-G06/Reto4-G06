@@ -345,6 +345,7 @@ if __name__ == "__main__":
             print_req_3(control)
 
         elif int(inputs) == 5:
+            data = controller.req_4(control)
             print_req_4(control)
 
         elif int(inputs) == 6:
