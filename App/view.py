@@ -205,17 +205,38 @@ def print_tabulate(data_structs, lista, condicion):
         print("Ultimos 5: ")
         print(tabulate(last5, headers=headers, tablefmt='fancy_grid'))
         
+    elif condicion == "ListaAirports":
         
+        headers = ["NOMBRE", "ICAO", "CIUDAD"]
         
+        data = lista["elements"]
+        data_tabulate = []
+        
+        for airport in data:  
+            data_tabulate.append([airport["NOMBRE"], airport["ICAO"], airport["CIUDAD"]])
+        
+        print(tabulate(data_tabulate, headers=headers, tablefmt='fancy_grid'))
+
     
-    
-    
-def print_req_1(control):
+def print_req_1(data_structs, results, deltaTime):
     """
         Función que imprime la solución del Requerimiento 1 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 1
-    pass
+    
+    print ("--------------------------------------------------------------------")
+    print("Tiempo [ms]: ", f"{deltaTime:.3f}", "||")
+    print ("--------------------------------------------------------------------")
+    print("\n")
+    print("--------------------------------------------------------------------")
+    print("Total distancia recorrida: ", results[0], "KM.")
+    print("Tiempo total: ", results[5], "minutos.")
+    print("Numero de aeropuertos recorridos: ", results[1])
+    print("Aeropuerto ORIGEN: ", results[3])
+    print("Aeropuerto DESTINO: ", results[4])
+    print("--------------------------------------------------------------------")
+    print("RECORRIDO: ")
+    print_tabulate(data_structs, results[2], "ListaAirports")
 
 
 def print_req_2(control):
@@ -338,10 +359,10 @@ if __name__ == "__main__":
             #destino_latitud = float(input('Ingrese la latitud de destino: '))
             #destino_longitud = float(input('Ingrese la longitud de destino: '))
             
-            origen_latitud, origen_longitud, destino_latitud, destino_longitud = float("4.601992771389502"), float("10.507688799813222"), float("-74.06610470441926"), float("-75.4706488665794")
-            data, deltatime = controller.req_1(control, origen_latitud, origen_longitud, destino_latitud, destino_longitud)
+            origen_latitud, origen_longitud, destino_latitud, destino_longitud = float("4.601992771389502"), float("-74.06610470441926"), float("10.507688799813222"), float("-75.4706488665794")
+            data, deltaTime = controller.req_1(control, origen_latitud, origen_longitud, destino_latitud, destino_longitud)
             
-            print_req_1(control)
+            print_req_1(control, data, deltaTime )
 
         elif int(inputs) == 3:
             print_req_2(control)

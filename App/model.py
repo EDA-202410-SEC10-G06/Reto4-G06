@@ -591,6 +591,13 @@ def req_1(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
     desviacionlongitud = (30/78.62)
     desviacionLatitud = (30/111.32)
     lst_keys = mp.keySet(data_structs['AirportsInfoMap'])
+    
+    totalDistancia = 0
+    totalTiempo = 0
+    NumAirports = 0
+    
+    lstAirports  = lt.newList("ARRAY_LIST")
+    
     origin = None
     destino = None
 
@@ -603,23 +610,42 @@ def req_1(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
         longitudKey = airport['LONGITUD']
         latitudKey = airport['LATITUD']
         
-        if ((longitudKey >= (origen_longitud-desviacionlongitud)) and (longitudKey <= (origen_longitud + desviacionlongitud))) and (latitudKey >= (origen_latitud-desviacionLatitud) and latitudKey <= (origen_latitud + desviacionLatitud)) and (encontro_origin == False):
+        distanceOrigen = haversine(latitudKey, longitudKey, origen_latitud, origen_longitud)
+        distanceDestin = haversine(latitudKey, longitudKey, destino_latitud, destino_longitud)
+        
+        if distanceOrigen <= 30 and (encontro_origin == False):
             origin = key
+            totalDistancia += distanceOrigen
             encontro_origin = True
-        if ((longitudKey >= (destino_longitud-desviacionlongitud)) and (longitudKey <= (destino_longitud + desviacionlongitud))) and (latitudKey >= (destino_latitud-desviacionLatitud) and latitudKey <= (destino_latitud + desviacionLatitud)) and (encontro_destino == False):
+        if distanceDestin <= 30 and (encontro_destino == False):
             destino = key
+            totalDistancia += distanceDestin
             encontro_destino = True
+            
         if encontro_destino == True and encontro_origin == True:
             break
-    
+        
     searchPaths(data_structs, origin, 'dfs', "AirportComercialConnections")
-    print(data_structs["search"])
-    searchPathTo(data_structs, destino, 'dfs')
+    path = searchPathTo(data_structs, destino, 'dfs')
     
-    print("-"*40)
-    print(data_structs["search"])
+    prevAirport = None
+    for airport in lt.iterator(path):
+        airportValue = mp.get(data_structs["AirportsInfoMap"], airport)["value"]
+        lt.addLast(lstAirports, airportValue)
+        if prevAirport is not None:
+            edge = gr.getEdge(data_structs["AirportComercialConnections"], prevAirport, airport)
+            totalDistancia += edge["weight"]
+            edge = gr.getEdge(data_structs["AirportComercialTimeConnections"], prevAirport, airport)
+            totalTiempo += float(edge["weight"])
+        prevAirport = airport
     
-
+    NumAirports = lt.size(path)
+    
+    results = totalDistancia, NumAirports, lstAirports, origin, destino, totalTiempo
+    
+    return results
+    
+    
 
 def req_2(data_structs):
     """
