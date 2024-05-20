@@ -579,30 +579,21 @@ def data_size(data_structs):
     #TODO: Crear la función para obtener el tamaño de una lista
     pass
 
-#========================================================
-# Requerimientos 
-#========================================================
-
-def req_1(data_structs, origen_latitud, origen_longitud, destino_latitud, destino_longitud):
+def findCloseAirport(data_structs, origen_latitud, origen_longitud, destino_latitud, destino_longitud):
     """
-    Función que soluciona el requerimiento 1
+    Retorna el tamaño de la lista de datos
     """
-    # TODO: Realizar el requerimiento 1
-    desviacionlongitud = (30/78.62)
-    desviacionLatitud = (30/111.32)
-    lst_keys = mp.keySet(data_structs['AirportsInfoMap'])
+    #TODO: Crear la función para obtener el tamaño de una lista
     
     totalDistancia = 0
-    totalTiempo = 0
-    NumAirports = 0
-    
-    lstAirports  = lt.newList("ARRAY_LIST")
     
     origin = None
     destino = None
-
+    
     encontro_origin = False
     encontro_destino = False
+    
+    lst_keys = mp.keySet(data_structs['AirportsInfoMap'])
     
     for key in lt.iterator(lst_keys):
         airport = mp.get(data_structs['AirportsInfoMap'], key)['value']
@@ -624,7 +615,60 @@ def req_1(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
             
         if encontro_destino == True and encontro_origin == True:
             break
+    
+    return origin, destino, totalDistancia
+    
+
+#========================================================
+# Requerimientos 
+#========================================================
+
+def req_1(data_structs, origen_latitud, origen_longitud, destino_latitud, destino_longitud):
+    """
+    Función que soluciona el requerimiento 1
+    """
+    # TODO: Realizar el requerimiento 1
+    desviacionlongitud = (30/78.62)
+    desviacionLatitud = (30/111.32)
+    #lst_keys = mp.keySet(data_structs['AirportsInfoMap'])
+    
+    totalDistancia = 0
+    totalTiempo = 0
+    NumAirports = 0
+    
+    lstAirports  = lt.newList("ARRAY_LIST")
+    
+    #origin = None
+    #destino = None
+    
+    origin, destino, totalDistancia = findCloseAirport(data_structs,origen_latitud, origen_longitud, destino_latitud, destino_longitud)
+
+    #encontro_origin = False
+    #encontro_destino = False
+    
+    """
+    for key in lt.iterator(lst_keys):
+        airport = mp.get(data_structs['AirportsInfoMap'], key)['value']
+
+        longitudKey = airport['LONGITUD']
+        latitudKey = airport['LATITUD']
         
+        distanceOrigen = haversine(latitudKey, longitudKey, origen_latitud, origen_longitud)
+        distanceDestin = haversine(latitudKey, longitudKey, destino_latitud, destino_longitud)
+        
+        if distanceOrigen <= 30 and (encontro_origin == False):
+            origin = key
+            totalDistancia += distanceOrigen
+            encontro_origin = True
+        if distanceDestin <= 30 and (encontro_destino == False):
+            destino = key
+            totalDistancia += distanceDestin
+            encontro_destino = True
+            
+        if encontro_destino == True and encontro_origin == True:
+            break
+    """
+    
     searchPaths(data_structs, origin, 'dfs', "AirportComercialConnections")
     path = searchPathTo(data_structs, destino, 'dfs')
     
@@ -660,12 +704,15 @@ def req_2(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
     
     lstAirports  = lt.newList("ARRAY_LIST")
     
-    origin = None
-    destino = None
+    #origin = None
+    #destino = None
 
-    encontro_origin = False
-    encontro_destino = False
+    #encontro_origin = False
+    #encontro_destino = False
     
+    origin, destino, totalDistancia = findCloseAirport(data_structs,origen_latitud, origen_longitud, destino_latitud, destino_longitud)
+    
+    """
     for key in lt.iterator(lst_keys):
         airport = mp.get(data_structs['AirportsInfoMap'], key)['value']
 
@@ -686,7 +733,8 @@ def req_2(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
             
         if encontro_destino == True and encontro_origin == True:
             break
-        
+    """
+       
     searchPaths(data_structs, origin, 'bfs', "AirportComercialConnections")
     path = searchPathTo(data_structs, destino, 'bfs')
     
