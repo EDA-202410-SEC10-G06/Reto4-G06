@@ -217,49 +217,131 @@ def print_tabulate(data_structs, lista, condicion):
             data_tabulate.append([airport["NOMBRE"], airport["ICAO"], airport["CIUDAD"]])
         
         print(tabulate(data_tabulate, headers=headers, tablefmt='fancy_grid'))
-
+        
+        
+    elif condicion == "req7":
+        
+        headers = ["NOMBRE", "ICAO", "CIUDAD"]
+        
+        data = lista["elements"]
+        data_tabulate = []
+        
+        for pos in range(lt.size(lista) - 1, -1, -1):
+            edge = data[pos]
+            
+            vertexA = edge[0]
+            vertexB = edge[1]
+            
+            data_tabulate.append([vertexA["NOMBRE"], vertexA["ICAO"], vertexA["CIUDAD"]])
+            data_tabulate.append([vertexB["NOMBRE"], vertexB["ICAO"], vertexB["CIUDAD"]])
+        
+        print(tabulate(data_tabulate, headers=headers, tablefmt='fancy_grid'))  
+        
     
-def print_req_1(data_structs, results, deltaTime):
+def print_req_1(data_structs, results, deltaTime, condicion):
     """
         Función que imprime la solución del Requerimiento 1 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 1
     
-    print ("--------------------------------------------------------------------")
-    print("Tiempo [ms]: ", f"{deltaTime:.3f}", "||")
-    print ("--------------------------------------------------------------------")
-    print("\n")
-    print("--------------------------------------------------------------------")
-    print("Total distancia recorrida: ", results[0], "KM.")
-    print("Tiempo total: ", results[5], "minutos.")
-    print("Numero de aeropuertos recorridos: ", results[1])
-    print("Aeropuerto ORIGEN: ", results[3])
-    print("Aeropuerto DESTINO: ", results[4])
-    print("--------------------------------------------------------------------")
-    print("RECORRIDO: ")
-    print_tabulate(data_structs, results[2], "ListaAirports")
+    if condicion == "FOUNDPATH":
+        print ("--------------------------------------------------------------------")
+        print("Tiempo [ms]: ", f"{deltaTime:.3f}", "||")
+        print ("--------------------------------------------------------------------")
+        print("\n")
+        print("--------------------------------------------------------------------")
+        print("Total distancia recorrida: ", results[0], "KM.")
+        print("Tiempo total: ", results[5], "minutos.")
+        print("Numero de aeropuertos recorridos: ", results[1])
+        print("Aeropuerto ORIGEN: ", results[3])
+        print("Aeropuerto DESTINO: ", results[4])
+        print("--------------------------------------------------------------------")
+        print("RECORRIDO: ")
+        print_tabulate(data_structs, results[2], "ListaAirports")
 
+    elif (condicion == "NOPATH"): 
+        
+        print ("--------------------------------------------------------------------")
+        print("Tiempo [ms]: ", f"{deltaTime:.3f}", "||")
+        print ("--------------------------------------------------------------------")
+        print("\n")
+        print("--------------------------------------------------------------------")
+        print("--- NO SE ENCONTRO NINGUN CAMINO CON LAS ESPECIFICACIONES DADAS ----")
+        print("--------------------------------------------------------------------")
+        print("\n")
+        print("--------------------------------------------------------------------")
+        print("Aeropuerto origen más cercano: ", results[0], "a ", results[2] ," KM.")
+        print("Aeropuerto destino más cercano: ", results[1], "a ", results[3] ," KM.")
+        print("--------------------------------------------------------------------")
+    
+    else:
+        
+        print ("--------------------------------------------------------------------")
+        print("Tiempo [ms]: ", f"{deltaTime:.3f}", "||")
+        print ("--------------------------------------------------------------------")
+        print("\n")
+        print("--------------------------------------------------------------------")
+        print("-- NO SE ENCONTRO NINGUN AEROPUERTO DENTRO DE UN RANGO DE 30 KM ----")
+        print("--------------------------------------------------------------------")
+        print("\n")
+        print("--------------------------------------------------------------------")
+        print("Aeropuerto origen más cercano: ", results[0], "a ", results[2] ," KM.")
+        print("Aeropuerto destino más cercano: ", results[1], "a ", results[3] ," KM.")
+        print("--------------------------------------------------------------------")
+        
 
-def print_req_2(data_structs, results, deltaTime):
+def print_req_2(data_structs, results, deltaTime, condicion):
     """
         Función que imprime la solución del Requerimiento 1 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 1
     
-    print ("--------------------------------------------------------------------")
-    print("Tiempo [ms]: ", f"{deltaTime:.3f}", "||")
-    print ("--------------------------------------------------------------------")
-    print("\n")
-    print("--------------------------------------------------------------------")
-    print("Total distancia recorrida: ", results[0], "KM.")
-    print("Tiempo total: ", results[5], "minutos.")
-    print("Numero de aeropuertos recorridos: ", results[1])
-    print("Aeropuerto ORIGEN: ", results[3])
-    print("Aeropuerto DESTINO: ", results[4])
-    print("--------------------------------------------------------------------")
-    print("RECORRIDO: ")
-    print_tabulate(data_structs, results[2], "ListaAirports")
+    if condicion == "FOUNDPATH":
+        
+        print ("--------------------------------------------------------------------")
+        print("Tiempo [ms]: ", f"{deltaTime:.3f}", "||")
+        print ("--------------------------------------------------------------------")
+        print("\n")
+        print("--------------------------------------------------------------------")
+        print("Total distancia recorrida: ", results[0], "KM.")
+        print("Tiempo total: ", results[5], "minutos.")
+        print("Numero de aeropuertos recorridos: ", results[1])
+        print("Aeropuerto ORIGEN: ", results[3])
+        print("Aeropuerto DESTINO: ", results[4])
+        print("--------------------------------------------------------------------")
+        print("RECORRIDO: ")
+        print_tabulate(data_structs, results[2], "ListaAirports")
 
+    elif (condicion == "NOPATH"): 
+        
+        print ("--------------------------------------------------------------------")
+        print("Tiempo [ms]: ", f"{deltaTime:.3f}", "||")
+        print ("--------------------------------------------------------------------")
+        print("\n")
+        print("--------------------------------------------------------------------")
+        print("--- NO SE ENCONTRO NINGUN CAMINO CON LAS ESPECIFICACIONES DADAS ----")
+        print("--------------------------------------------------------------------")
+        print("\n")
+        print("--------------------------------------------------------------------")
+        print("Aeropuerto origen más cercano: ", results[0], "a ", results[2] ," KM.")
+        print("Aeropuerto destino más cercano: ", results[1], "a ", results[3] ," KM.")
+        print("--------------------------------------------------------------------")
+    
+    else:
+        
+        print ("--------------------------------------------------------------------")
+        print("Tiempo [ms]: ", f"{deltaTime:.3f}", "||")
+        print ("--------------------------------------------------------------------")
+        print("\n")
+        print("--------------------------------------------------------------------")
+        print("-- NO SE ENCONTRO NINGUN AEROPUERTO DENTRO DE UN RANGO DE 30 KM ----")
+        print("--------------------------------------------------------------------")
+        print("\n")
+        print("--------------------------------------------------------------------")
+        print("Aeropuerto origen más cercano: ", results[0], "a ", results[2] ," KM.")
+        print("Aeropuerto destino más cercano: ", results[1], "a ", results[3] ," KM.")
+        print("--------------------------------------------------------------------")
+    
 
 def print_req_3(control):
     """
@@ -293,12 +375,57 @@ def print_req_6(control):
     pass
 
 
-def print_req_7(control):
+def print_req_7(data_structs, results, deltaTime, condicion):
     """
         Función que imprime la solución del Requerimiento 7 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 7
-    pass
+    
+    if condicion == "FOUNDPATH":
+        print ("--------------------------------------------------------------------")
+        print("Tiempo [ms]: ", f"{deltaTime:.3f}", "||")
+        print ("--------------------------------------------------------------------")
+        print("\n")
+        print("--------------------------------------------------------------------")
+        print("Total distancia recorrida: ", results[0], "KM.")
+        print("Tiempo total: ", results[5], "minutos.")
+        print("Numero de aeropuertos recorridos: ", results[1])
+        print("Aeropuerto ORIGEN: ", results[3])
+        print("Aeropuerto DESTINO: ", results[4])
+        print("--------------------------------------------------------------------")
+        print("RECORRIDO: ")
+        print_tabulate(data_structs, results[2], "req7")
+        
+
+    elif (condicion == "NOPATH"): 
+        
+        print ("--------------------------------------------------------------------")
+        print("Tiempo [ms]: ", f"{deltaTime:.3f}", "||")
+        print ("--------------------------------------------------------------------")
+        print("\n")
+        print("--------------------------------------------------------------------")
+        print("--- NO SE ENCONTRO NINGUN CAMINO CON LAS ESPECIFICACIONES DADAS ----")
+        print("--------------------------------------------------------------------")
+        print("\n")
+        print("--------------------------------------------------------------------")
+        print("Aeropuerto origen más cercano: ", results[0], "a ", results[2] ," KM.")
+        print("Aeropuerto destino más cercano: ", results[1], "a ", results[3] ," KM.")
+        print("--------------------------------------------------------------------")
+    
+    else:
+        
+        print ("--------------------------------------------------------------------")
+        print("Tiempo [ms]: ", f"{deltaTime:.3f}", "||")
+        print ("--------------------------------------------------------------------")
+        print("\n")
+        print("--------------------------------------------------------------------")
+        print("-- NO SE ENCONTRO NINGUN AEROPUERTO DENTRO DE UN RANGO DE 30 KM ----")
+        print("--------------------------------------------------------------------")
+        print("\n")
+        print("--------------------------------------------------------------------")
+        print("Aeropuerto origen más cercano: ", results[0], "a ", results[2] ," KM.")
+        print("Aeropuerto destino más cercano: ", results[1], "a ", results[3] ," KM.")
+        print("--------------------------------------------------------------------")
 
 
 def print_req_8(airports):
@@ -374,21 +501,21 @@ if __name__ == "__main__":
             #destino_longitud = float(input('Ingrese la longitud de destino: '))
             
             origen_latitud, origen_longitud, destino_latitud, destino_longitud = float("4.601992771389502"), float("-74.06610470441926"), float("10.507688799813222"), float("-75.4706488665794")
-            data, deltaTime = controller.req_1(control, origen_latitud, origen_longitud, destino_latitud, destino_longitud)
-            
-            print_req_1(control, data, deltaTime )
+            results, deltaTime = controller.req_1(control, origen_latitud, origen_longitud, destino_latitud, destino_longitud)
+            data = results[1]
+            print_req_1(control, data, deltaTime, results[0])
             
         elif int(inputs) == 3:
             #origen_latitud = float(input('Ingrese la latitud de origen: '))
-            #origen_longitud = float(input('Ingrese la longitud de origen: '))
+            #origen_longitud = float(input('Ingrese la longitud de origen: '))          #Polo sur: 90.0000° S, 45.0000° E
             
-            #destino_latitud = float(input('Ingrese la latitud de destino: '))
-            #destino_longitud = float(input('Ingrese la longitud de destino: '))
+            #destino_latitud = float(input('Ingrese la latitud de destino: '))          #Antartida: float("82.8628"), float("135.0000")
+            #destino_longitud = float(input('Ingrese la longitud de destino: '))        #float("10.507688799813222"), float("-75.4706488665794")
             
             origen_latitud, origen_longitud, destino_latitud, destino_longitud = float("4.601992771389502"), float("-74.06610470441926"), float("10.507688799813222"), float("-75.4706488665794")
-            data, deltaTime = controller.req_2(control, origen_latitud, origen_longitud, destino_latitud, destino_longitud)
-            
-            print_req_2(control, data, deltaTime )
+            results, deltaTime = controller.req_2(control, origen_latitud, origen_longitud, destino_latitud, destino_longitud)
+            data = results[1]
+            print_req_2(control, data, deltaTime, results[0])
 
         elif int(inputs) == 4:
             data, deltaTime = controller.req_3(control)
@@ -404,7 +531,16 @@ if __name__ == "__main__":
             print_req_6(control)
 
         elif int(inputs) == 8:
-            print_req_7(control)
+            #origen_latitud = float(input('Ingrese la latitud de origen: '))
+            #origen_longitud = float(input('Ingrese la longitud de origen: '))          #Polo sur: 90.0000° S, 45.0000° E
+            
+            #destino_latitud = float(input('Ingrese la latitud de destino: '))          #Antartida: float("82.8628"), float("135.0000")
+            #destino_longitud = float(input('Ingrese la longitud de destino: '))        #float("10.507688799813222"), float("-75.4706488665794")
+            
+            origen_latitud, origen_longitud, destino_latitud, destino_longitud = float("4.601992771389502"), float("-74.06610470441926"), float("10.507688799813222"), float("-75.4706488665794")
+            results, deltaTime = controller.req_7(control, origen_latitud, origen_longitud, destino_latitud, destino_longitud)
+            data = results[1]
+            print_req_7(control, data, deltaTime, results[0])
 
         elif int(inputs) == 9:
             opcion = int(input("Digite el requerimiento que desea observar en el mapa: "))

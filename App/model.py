@@ -83,7 +83,8 @@ def new_data_structs():
             'AirportCargaConnections': None,
             'AirportMilitarConnections': None,
             'searchMST': None,           
-            'search': None
+            'search': None,
+            'paths': None
         }
 
         #---------------------------------------
@@ -551,7 +552,7 @@ def searchPaths(data_structs, originICAO, method, graph):
         
     return data_structs
 
-def hasSearchPath(data_structs, destICAO, method, graph):
+def hasSearchPath(data_structs, destICAO, method):
     """
     hasSearchPath indica si existe un camino desde la estacion inicial a
     la estación destino. Se debe ejecutar primero la funcion searchPaths()
@@ -566,11 +567,37 @@ def hasSearchPath(data_structs, destICAO, method, graph):
         raise ValueError("Debe ejecutar primero la funcion searchPath")
     
     if method == 'dfs':
-        data_structs['search'] = dfs.hasPathTo(data_structs[graph], destICAO)
+        return dfs.hasPathTo(data_structs['search'], destICAO)
     elif method == 'bfs':
-        data_structs['search'] = bfs.hasPathTo(data_structs[graph], destICAO)
+        return bfs.hasPathTo(data_structs['search'], destICAO)
         
     return data_structs
+
+def minimumCostPaths(data_structs, initialStation, graph):
+    """
+    Calcula los caminos de costo mínimo desde la estacion initialStation
+    a todos los demas vertices del grafo
+    """
+    data_structs['paths'] = djk.Dijkstra(data_structs[graph], initialStation)
+    return data_structs
+
+
+def hasPath(data_structs, destStation):
+    """
+    Indica si existe un camino desde la estacion inicial a la estación destino
+    Se debe ejecutar primero la funcion minimumCostPaths
+    """
+    return djk.hasPathTo(data_structs['paths'], destStation)
+
+
+def minimumCostPath(data_structs, destStation):
+    """
+    Retorna el camino de costo minimo entre la estacion de inicio
+    y la estacion destino
+    Se debe ejecutar primero la funcion minimumCostPaths
+    """
+    path = djk.pathTo(data_structs['paths'], destStation)
+    return path
 
 def data_size(data_structs):
     """
@@ -673,30 +700,35 @@ def req_1(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
     
     origin, destino, totalDistancia = findCloseAirport(data_structs,origen_latitud, origen_longitud, destino_latitud, destino_longitud)
 
-    if hasSearchPath:
-        
-        searchPaths(data_structs, origin, 'dfs', "AirportComercialConnections")
-        path = searchPathTo(data_structs, destino, 'dfs')
-        
-        prevAirport = None
-        for airport in lt.iterator(path):
-            airportValue = mp.get(data_structs["AirportsInfoMap"], airport)["value"]
-            lt.addLast(lstAirports, airportValue)
-            if prevAirport is not None:
-                edge = gr.getEdge(data_structs["AirportComercialConnections"], prevAirport, airport)
-                totalDistancia += edge["weight"]
-                edge = gr.getEdge(data_structs["AirportComercialTimeConnections"], prevAirport, airport)
-                totalTiempo += float(edge["weight"])
-            prevAirport = airport
-        
-        NumAirports = lt.size(path)
-        
-        results = totalDistancia, NumAirports, lstAirports, origin, destino, totalTiempo
+    searchPaths(data_structs, origin, 'dfs', "AirportComercialConnections")
     
-    else:
+    if (origin != None and destino != None):
+        if hasSearchPath(data_structs, destino, 'dfs'):
+            
+            path = searchPathTo(data_structs, destino, 'dfs')
+            
+            prevAirport = None
+            for airport in lt.iterator(path):
+                airportValue = mp.get(data_structs["AirportsInfoMap"], airport)["value"]
+                lt.addLast(lstAirports, airportValue)
+                if prevAirport is not None:
+                    edge = gr.getEdge(data_structs["AirportComercialConnections"], prevAirport, airport)
+                    totalDistancia += edge["weight"]
+                    edge = gr.getEdge(data_structs["AirportComercialTimeConnections"], prevAirport, airport)
+                    totalTiempo += float(edge["weight"])
+                prevAirport = airport
+            
+            NumAirports = lt.size(path)
+            
+            results = ["FOUNDPATH",[totalDistancia, NumAirports, lstAirports, origin, destino, totalTiempo]]
         
+        else:
+            closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin = findClosestAirport(data_structs,origen_latitud, origen_longitud, destino_latitud, destino_longitud)
+            results =  ["NOPATH",[closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin]]
+            
+    else:                
         closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin = findClosestAirport(data_structs,origen_latitud, origen_longitud, destino_latitud, destino_longitud)
-        results =  closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin
+        results =  ["NOTFOUND",[closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin]]
     
     return results
     
@@ -704,10 +736,12 @@ def req_1(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
 
 def req_2(data_structs, origen_latitud, origen_longitud, destino_latitud, destino_longitud):
     """
-    Función que soluciona el requerimiento 2
+    Función que soluciona el requerimiento 1
     """
-    # TODO: Realizar el requerimiento 2
-    lst_keys = mp.keySet(data_structs['AirportsInfoMap'])
+    # TODO: Realizar el requerimiento 1
+    desviacionlongitud = (30/78.62)
+    desviacionLatitud = (30/111.32)
+    #lst_keys = mp.keySet(data_structs['AirportsInfoMap'])
     
     totalDistancia = 0
     totalTiempo = 0
@@ -715,54 +749,37 @@ def req_2(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
     
     lstAirports  = lt.newList("ARRAY_LIST")
     
-    #origin = None
-    #destino = None
-
-    #encontro_origin = False
-    #encontro_destino = False
-    
     origin, destino, totalDistancia = findCloseAirport(data_structs,origen_latitud, origen_longitud, destino_latitud, destino_longitud)
-    
-    """
-    for key in lt.iterator(lst_keys):
-        airport = mp.get(data_structs['AirportsInfoMap'], key)['value']
 
-        longitudKey = airport['LONGITUD']
-        latitudKey = airport['LATITUD']
-        
-        distanceOrigen = haversine(latitudKey, longitudKey, origen_latitud, origen_longitud)
-        distanceDestin = haversine(latitudKey, longitudKey, destino_latitud, destino_longitud)
-        
-        if distanceOrigen <= 30 and (encontro_origin == False):
-            origin = key
-            totalDistancia += distanceOrigen
-            encontro_origin = True
-        if distanceDestin <= 30 and (encontro_destino == False):
-            destino = key
-            totalDistancia += distanceDestin
-            encontro_destino = True
-            
-        if encontro_destino == True and encontro_origin == True:
-            break
-    """
-       
     searchPaths(data_structs, origin, 'bfs', "AirportComercialConnections")
-    path = searchPathTo(data_structs, destino, 'bfs')
     
-    prevAirport = None
-    for airport in lt.iterator(path):
-        airportValue = mp.get(data_structs["AirportsInfoMap"], airport)["value"]
-        lt.addLast(lstAirports, airportValue)
-        if prevAirport is not None:
-            edge = gr.getEdge(data_structs["AirportComercialConnections"], prevAirport, airport)
-            totalDistancia += edge["weight"]
-            edge = gr.getEdge(data_structs["AirportComercialTimeConnections"], prevAirport, airport)
-            totalTiempo += float(edge["weight"])
-        prevAirport = airport
-    
-    NumAirports = lt.size(path)
-    
-    results = totalDistancia, NumAirports, lstAirports, origin, destino, totalTiempo
+    if (origin != None and destino != None):
+        if hasSearchPath(data_structs, destino, 'bfs'):
+            
+            path = searchPathTo(data_structs, destino, 'bfs')
+            
+            prevAirport = None
+            for airport in lt.iterator(path):
+                airportValue = mp.get(data_structs["AirportsInfoMap"], airport)["value"]
+                lt.addLast(lstAirports, airportValue)
+                if prevAirport is not None:
+                    edge = gr.getEdge(data_structs["AirportComercialConnections"], prevAirport, airport)
+                    totalDistancia += edge["weight"]
+                    edge = gr.getEdge(data_structs["AirportComercialTimeConnections"], prevAirport, airport)
+                    totalTiempo += float(edge["weight"])
+                prevAirport = airport
+            
+            NumAirports = lt.size(path)
+            
+            results = ["FOUNDPATH",[totalDistancia, NumAirports, lstAirports, origin, destino, totalTiempo]]
+        
+        else:
+            closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin = findClosestAirport(data_structs,origen_latitud, origen_longitud, destino_latitud, destino_longitud)
+            results =  ["NOPATH",[closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin]]
+            
+    else:                
+        closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin = findClosestAirport(data_structs,origen_latitud, origen_longitud, destino_latitud, destino_longitud)
+        results =  ["NOTFOUND",[closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin]]
     
     return results
 
@@ -778,25 +795,16 @@ def req_3(data_structs):
     ConcurrenceAirport = lt.firstElement(data_structs["AirportsComercialList"])
     
     primSearch = prim.PrimMST(data_structs["AirportComercialConnections"], ConcurrenceAirport["airport"])
-    #print(primSearch.keys())
+
     edgesMST = prim.edgesMST(data_structs["AirportComercialConnections"], primSearch)["mst"]
-    #print(edgesMST.keys())
+
     totalDistance = prim.weightMST(data_structs["AirportComercialConnections"], primSearch)
-    #print(totalDistance)
-    print(totalDistance)
     
     for edge in lt.iterator(edgesMST):
-        print(edge)
-        #vertexA = mp.get(data_structs["AirportsInfoMap"], edge["vertexA"])["value"]
-        #vertexB = mp.get(data_structs["AirportsInfoMap"], edge["vertexB"])["value"]
-
-        #weight = haversine(vertexA["LATITUD"], vertexA["LONGITUD"],vertexB["LATITUD"], vertexB["LONGITUD"])
-        #totalDistance += weight
-    #print(totalDistance)
-    
-    
-    
-    
+        
+        vertexA = mp.get(data_structs["AirportsInfoMap"], edge["vertexA"])["value"]
+        vertexB = mp.get(data_structs["AirportsInfoMap"], edge["vertexB"])["value"]
+        
     return ConcurrenceAirport, totalDistance, 
 
 
@@ -829,8 +837,62 @@ def req_7(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
     Función que soluciona el requerimiento 7
     """
     # TODO: Realizar el requerimiento 7
+
+    desviacionlongitud = (30/78.62)
+    desviacionLatitud = (30/111.32)
+    
+    totalDistancia = 0
+    totalTiempo = 0
+    NumAirports = 0
+    
+    lstAirports  = lt.newList("ARRAY_LIST")
+    
+    mapAirports = mp.newMap(numelements = 100,
+                     maptype="PROBING",              
+                    cmpfunction = compareKeysId)
+    
+    
     origin, destino, totalDistancia = findCloseAirport(data_structs,origen_latitud, origen_longitud, destino_latitud, destino_longitud)
-    camino = djk.Dijkstra
+
+    searchPaths(data_structs, origin, 'dfs', "AirportComercialConnections")
+    
+    if (origin != None and destino != None):
+             
+        minimumCostPaths(data_structs, origin, "AirportComercialConnections")
+        path = minimumCostPath(data_structs, destino)
+        
+        if path is not None:
+            for edge in lt.iterator(path):
+                
+                totalDistancia += edge["weight"]
+                edgeTime = gr.getEdge(data_structs["AirportComercialTimeConnections"], edge["vertexA"], edge["vertexB"])
+                totalTiempo += float(edgeTime["weight"])
+                
+                vertexA = mp.get(data_structs["AirportsInfoMap"], edge["vertexA"])["value"]
+                vertexB = mp.get(data_structs["AirportsInfoMap"], edge["vertexB"])["value"]
+                
+                entry = (vertexA, vertexB)
+                
+                lt.addLast(lstAirports, entry)
+            
+            NumAirports = lt.size(path)*2
+            
+            results = ["FOUNDPATH",[totalDistancia, NumAirports, lstAirports, origin, destino, totalTiempo]]
+    
+        else:
+            closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin = findClosestAirport(data_structs,origen_latitud, origen_longitud, destino_latitud, destino_longitud)
+            results =  ["NOPATH",[closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin]]
+            
+    else:                
+        closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin = findClosestAirport(data_structs,origen_latitud, origen_longitud, destino_latitud, destino_longitud)
+        results =  ["NOTFOUND",[closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin]]
+    
+    return results
+    
+    
+    
+    
+    
 
 def req_8(data_structs):
     """
