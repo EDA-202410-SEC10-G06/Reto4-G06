@@ -202,12 +202,18 @@ def req_6(control):
     pass
 
 
-def req_7(control):
+def req_7(control, origen_latitud, origen_longitud, destino_latitud, destino_longitud):
     """
     Retorna el resultado del requerimiento 7
     """
     # TODO: Modificar el requerimiento 7
-    pass
+    start_time = get_time()
+    
+    result = model.req_7(control, origen_latitud, origen_longitud, destino_latitud, destino_longitud)
+    stop_time = get_time()
+    deltaTime = delta_time(start_time, stop_time)
+    
+    return result, deltaTime
 
 
 def req_8(control):

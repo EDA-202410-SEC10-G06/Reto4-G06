@@ -212,7 +212,8 @@ def print_tabulate(data_structs, lista, condicion):
         data = lista["elements"]
         data_tabulate = []
         
-        for airport in data:  
+        for pos in range(lt.size(lista) - 1, -1, -1):
+            airport = data[pos]
             data_tabulate.append([airport["NOMBRE"], airport["ICAO"], airport["CIUDAD"]])
         
         print(tabulate(data_tabulate, headers=headers, tablefmt='fancy_grid'))
