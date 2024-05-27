@@ -85,8 +85,9 @@ def new_data_structs():
             'searchMST': None,           
             'search': None,
             'paths': None,
-            'MSTindividuales': None,
-            #'MSTindividualesTime': None
+            'MSTreq3': None,
+            'MSTreq4': None,
+            'MSTreq5': None,
         }
 
         #---------------------------------------
@@ -146,6 +147,10 @@ def new_data_structs():
                                               directed=False,
                                               size=14000,
                                               cmpfunction=compareKeysId)
+        data_structs["MSTreq3"] = gr.newGraph(datastructure='ADJ_LIST',
+                                              directed=False,
+                                              size=14000,
+                                              cmpfunction=compareKeysId)
         
         #Req 7, Peso: tiempo
         data_structs["AirportComercialTimeConnections"] = gr.newGraph(datastructure='ADJ_LIST',
@@ -158,13 +163,18 @@ def new_data_structs():
                                               directed=False,
                                               size=14000,
                                               cmpfunction=compareKeysId)
+        
+        data_structs["MSTreq4"] = gr.newGraph(datastructure='ADJ_LIST',
+                                              directed=False,
+                                              size=14000,
+                                              cmpfunction=compareKeysId)
         #Req 5, Peso: distance
         data_structs["AirportMilitarConnections"] = gr.newGraph(datastructure='ADJ_LIST',
                                               directed=False,
                                               size=14000,
                                               cmpfunction=compareKeysId)
         
-        data_structs["MSTindividuales"] = gr.newGraph(datastructure='ADJ_LIST',
+        data_structs["MSTreq5"] = gr.newGraph(datastructure='ADJ_LIST',
                                               directed=False,
                                               size=14000,
                                               cmpfunction=compareKeysId)
@@ -430,6 +440,7 @@ def addTimeConnectionToAirports(data_structs, origin, destination, distance, gra
         gr.addEdge(data_structs[graph], origin, destination, distance)
     return data_structs
 
+
 def addRouteConnections(data_structs, map, graph):
     """
     Por cada vertice (cada Airport) se recorre la lista
@@ -479,7 +490,6 @@ def addAirportToList(data_structs, map, lista):
 # Funciones para creacion de datos
 #========================================================
 
-
 def setAirportData(lastAirport, airport):
     
     #Convierte las coordenadas a sistema decimal con punto
@@ -494,28 +504,11 @@ def setAirportData(lastAirport, airport):
     
     return lastAirport, airport
 
-
-def new_data(id, info):
-    """
-    Crea una nueva estructura para modelar los datos
-    """
-    #TODO: Crear la función para estructurar los datos
-    pass
-
-
 #========================================================
 # Funciones de consulta
 #========================================================
 
-def get_data(data_structs, id):
-    """
-    Retorna un dato a partir de su ID
-    """
-    #TODO: Crear la función para obtener un dato de una lista
-    pass
-
-
-def searchPathTo(analyzer, destStation, method):
+def searchPathTo(data_structs, destStation, method, search):
     """
     searchPath retorna el camino de encontrado entre la estacion de inicio
     y la estacion destino Se debe ejecutar primero la funcion searchPaths
@@ -531,13 +524,12 @@ def searchPathTo(analyzer, destStation, method):
     path = None
     # TODO Lab 11, ejecutar pathTo por dfs
     if method == "dfs":
-        path = dfs.pathTo(analyzer['search'], destStation)
+        path = dfs.pathTo(search, destStation)
     # TODO Lab 11, ejecutar pathTo por bfs
     elif method == "bfs":
-        path = bfs.pathTo(analyzer['search'], destStation)
+        path = bfs.pathTo(search, destStation)
     return path
 
-    
 def searchPaths(data_structs, originICAO, method, graph):
     """
     searchPaths Calcula los caminos posibles desde una estacion de origen
@@ -552,13 +544,13 @@ def searchPaths(data_structs, originICAO, method, graph):
         dict: devuelve el analyzer del modelo
     """
     if method == 'dfs':
-        data_structs['search'] = dfs.DepthFirstSearch(data_structs[graph], originICAO)
+        search = dfs.DepthFirstSearch(data_structs[graph], originICAO)
     elif method == 'bfs':
-        data_structs['search'] = bfs.BreathFirstSearch(data_structs[graph], originICAO)
+        search = bfs.BreathFirstSearch(data_structs[graph], originICAO)
         
-    return data_structs
+    return search
 
-def hasSearchPath(data_structs, destICAO, method):
+def hasSearchPath(data_structs, destICAO, method, search):
     """
     hasSearchPath indica si existe un camino desde la estacion inicial a
     la estación destino. Se debe ejecutar primero la funcion searchPaths()
@@ -569,13 +561,13 @@ def hasSearchPath(data_structs, destICAO, method):
         method (str, optional): algoritmo de busqueda. Por defecto es "dfs"
     """
     
-    if data_structs['search'] is None:
+    if search is None:
         raise ValueError("Debe ejecutar primero la funcion searchPath")
     
     if method == 'dfs':
-        return dfs.hasPathTo(data_structs['search'], destICAO)
+        return dfs.hasPathTo(search, destICAO)
     elif method == 'bfs':
-        return bfs.hasPathTo(data_structs['search'], destICAO)
+        return bfs.hasPathTo(search, destICAO)
         
     return data_structs
 
@@ -584,9 +576,8 @@ def minimumCostPaths(data_structs, initialStation, graph):
     Calcula los caminos de costo mínimo desde la estacion initialStation
     a todos los demas vertices del grafo
     """
-    data_structs['paths'] = djk.Dijkstra(data_structs[graph], initialStation)
-    return data_structs
-
+    paths = djk.Dijkstra(data_structs[graph], initialStation)
+    return paths
 
 def hasPath(data_structs, destStation):
     """
@@ -594,7 +585,6 @@ def hasPath(data_structs, destStation):
     Se debe ejecutar primero la funcion minimumCostPaths
     """
     return djk.hasPathTo(data_structs['paths'], destStation)
-
 
 def minimumCostPath(data_structs, destStation):
     """
@@ -651,7 +641,6 @@ def findCloseAirport(data_structs, origen_latitud, origen_longitud, destino_lati
     
     return origin, destino, totalDistancia
 
-
 def findClosestAirport(data_structs, origen_latitud, origen_longitud, destino_latitud, destino_longitud):
     """
     Retorna el tamaño de la lista de datos
@@ -706,12 +695,12 @@ def req_1(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
     
     origin, destino, totalDistancia = findCloseAirport(data_structs,origen_latitud, origen_longitud, destino_latitud, destino_longitud)
 
-    searchPaths(data_structs, origin, 'dfs', "AirportComercialConnections")
+    search = searchPaths(data_structs, origin, 'dfs', "AirportComercialConnections")
     
     if (origin != None and destino != None):
-        if hasSearchPath(data_structs, destino, 'dfs'):
+        if hasSearchPath(data_structs, destino, 'dfs', search):
             
-            path = searchPathTo(data_structs, destino, 'dfs')
+            path = searchPathTo(data_structs, destino, 'dfs', search)
             
             prevAirport = None
             for airport in lt.iterator(path):
@@ -756,12 +745,12 @@ def req_2(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
     
     origin, destino, totalDistancia = findCloseAirport(data_structs,origen_latitud, origen_longitud, destino_latitud, destino_longitud)
 
-    searchPaths(data_structs, origin, 'bfs', "AirportComercialConnections")
+    search = searchPaths(data_structs, origin, 'bfs', "AirportComercialConnections")
     
     if (origin != None and destino != None):
-        if hasSearchPath(data_structs, destino, 'bfs'):
+        if hasSearchPath(data_structs, destino, 'bfs', search):
             
-            path = searchPathTo(data_structs, destino, 'bfs')
+            path = searchPathTo(data_structs, destino, 'bfs', search)
             
             prevAirport = None
             for airport in lt.iterator(path):
@@ -812,19 +801,19 @@ def req_3(data_structs):
     
     for edge in lt.iterator(edgesMST):
         
-        addAirportToGraph(data_structs, edge["vertexA"],"MSTindividuales")
-        addAirportToGraph(data_structs, edge["vertexB"],"MSTindividuales")
+        addAirportToGraph(data_structs, edge["vertexA"],"MSTreq3")
+        addAirportToGraph(data_structs, edge["vertexB"],"MSTreq3")
 
-        addDistanceConnectionToAirports(data_structs, edge["vertexA"], edge["vertexB"], edge["weight"], "MSTindividuales")
+        addDistanceConnectionToAirports(data_structs, edge["vertexA"], edge["vertexB"], edge["weight"], "MSTreq3")
         
-    searchPaths(data_structs, ConcurrenceAirport["airport"], 'bfs', "AirportComercialConnections")
+    search = searchPaths(data_structs, ConcurrenceAirport["airport"], 'bfs', "AirportComercialConnections")
     
-    vertices = gr.vertices(data_structs["MSTindividuales"])
+    vertices = gr.vertices(data_structs["MSTreq3"])
     
     for vertex in lt.iterator(vertices):
         if vertex != ConcurrenceAirport["airport"]:
         
-            path = searchPathTo(data_structs, vertex, 'dfs')
+            path = searchPathTo(data_structs, vertex, 'dfs', search)
             
             prevAirport = None
             
@@ -860,17 +849,17 @@ def req_4(data_structs):
     Función que soluciona el requerimiento 3
     """
     # TODO: Realizar el requerimiento 3
-        
+
     totalDistance = 0
     
     trayectoTime = 0
     trayectoDistance = 0
     lstAirports = lt.newList("ARRAY_LIST")
     
-    ConcurrenceAirport = lt.firstElement(data_structs["AirportsComercialList"])
-    primSearch = prim.PrimMST(data_structs["AirportComercialConnections"], ConcurrenceAirport["airport"])
+    ConcurrenceAirport = lt.firstElement(data_structs["AirportsCargaList"])
+    primSearch = prim.PrimMST(data_structs["AirportCargaConnections"], ConcurrenceAirport["airport"])
     
-    totalDistance = prim.weightMST(data_structs["AirportComercialConnections"], primSearch)
+    totalDistance = prim.weightMST(data_structs["AirportCargaConnections"], primSearch)
     
     edgesMST = primSearch["mst"]
     
@@ -878,19 +867,19 @@ def req_4(data_structs):
     
     for edge in lt.iterator(edgesMST):
         
-        addAirportToGraph(data_structs, edge["vertexA"],"MSTindividuales")
-        addAirportToGraph(data_structs, edge["vertexB"],"MSTindividuales")
+        addAirportToGraph(data_structs, edge["vertexA"],"MSTreq4")
+        addAirportToGraph(data_structs, edge["vertexB"],"MSTreq4")
 
-        addDistanceConnectionToAirports(data_structs, edge["vertexA"], edge["vertexB"], edge["weight"], "MSTindividuales")
+        addDistanceConnectionToAirports(data_structs, edge["vertexA"], edge["vertexB"], edge["weight"], "MSTreq4")
         
-    searchPaths(data_structs, ConcurrenceAirport["airport"], 'bfs', "AirportCargaConnections")
+    search = searchPaths(data_structs, ConcurrenceAirport["airport"], 'bfs', "AirportCargaConnections")
     
-    vertices = gr.vertices(data_structs["MSTindividuales"])
+    vertices = gr.vertices(data_structs["MSTreq4"])
     
     for vertex in lt.iterator(vertices):
         if vertex != ConcurrenceAirport["airport"]:
         
-            path = searchPathTo(data_structs, vertex, 'dfs')
+            path = searchPathTo(data_structs, vertex, 'dfs', search)
             
             prevAirport = None
             
@@ -925,17 +914,17 @@ def req_5(data_structs):
     Función que soluciona el requerimiento 3
     """
     # TODO: Realizar el requerimiento 3
-        
+
     totalDistance = 0
     
     trayectoTime = 0
     trayectoDistance = 0
     lstAirports = lt.newList("ARRAY_LIST")
     
-    ConcurrenceAirport = lt.firstElement(data_structs["AirportsComercialList"])
-    primSearch = prim.PrimMST(data_structs["AirportComercialConnections"], ConcurrenceAirport["airport"])
+    ConcurrenceAirport = lt.firstElement(data_structs["AirportsMilitarList"])
+    primSearch = prim.PrimMST(data_structs["AirportMilitarConnections"], ConcurrenceAirport["airport"])
     
-    totalDistance = prim.weightMST(data_structs["AirportComercialConnections"], primSearch)
+    totalDistance = prim.weightMST(data_structs["AirportMilitarConnections"], primSearch)
     
     edgesMST = primSearch["mst"]
     
@@ -943,19 +932,19 @@ def req_5(data_structs):
     
     for edge in lt.iterator(edgesMST):
         
-        addAirportToGraph(data_structs, edge["vertexA"],"MSTindividuales")
-        addAirportToGraph(data_structs, edge["vertexB"],"MSTindividuales")
+        addAirportToGraph(data_structs, edge["vertexA"],"MSTreq5")
+        addAirportToGraph(data_structs, edge["vertexB"],"MSTreq5")
 
-        addDistanceConnectionToAirports(data_structs, edge["vertexA"], edge["vertexB"], edge["weight"], "MSTindividuales")
+        addDistanceConnectionToAirports(data_structs, edge["vertexA"], edge["vertexB"], edge["weight"], "MSTreq5")
         
-    searchPaths(data_structs, ConcurrenceAirport["airport"], 'bfs', "AirportMilitarConnections")
+    search = searchPaths(data_structs, ConcurrenceAirport["airport"], 'bfs', "AirportMilitarConnections")
     
-    vertices = gr.vertices(data_structs["MSTindividuales"])
+    vertices = gr.vertices(data_structs["MSTreq5"])
     
     for vertex in lt.iterator(vertices):
         if vertex != ConcurrenceAirport["airport"]:
         
-            path = searchPathTo(data_structs, vertex, 'dfs')
+            path = searchPathTo(data_structs, vertex, 'dfs', search)
             
             prevAirport = None
             
@@ -1116,7 +1105,6 @@ def totalConnections(analyzer, data_structure):
     """
     return gr.numEdges(analyzer[data_structure])
 
-
 def totalNumVertex(data, data_structure):
     """
     Retorna el total de estaciones (vertices) del grafo
@@ -1130,17 +1118,9 @@ def totalMapKeys(data, data_structure):
     keys = mp.keySet(data[data_structure])
     return lt.size(keys)
 
-
 #======================================================================
 # Funciones utilizadas para comparar elementos dentro de una estructura
 #======================================================================
-
-def compare(data_1, data_2):
-    """
-    Función encargada de comparar dos datos
-    """
-    #TODO: Crear función comparadora de la lista
-    pass
 
 def compareKeysId(element, keyvalue):
     """
@@ -1196,11 +1176,3 @@ def ConcurenceAlphabeticCrit(data_1, data_2):
     else:
         return False
     
-
-
-def sort(data_structs):
-    """
-    Función encargada de ordenar la lista con los datos
-    """
-    #TODO: Crear función de ordenamiento
-    pass

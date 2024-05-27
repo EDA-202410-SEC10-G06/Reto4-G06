@@ -555,7 +555,7 @@ if __name__ == "__main__":
             #destino_latitud = float(input('Ingrese la latitud de destino: '))          #Antartida: float("82.8628"), float("135.0000")
             #destino_longitud = float(input('Ingrese la longitud de destino: '))        #float("10.507688799813222"), float("-75.4706488665794")
             
-            origen_latitud, origen_longitud, destino_latitud, destino_longitud = float("4.601992771389502"), float("-74.06610470441926"), float("82.8628"), float("135.0000")
+            origen_latitud, origen_longitud, destino_latitud, destino_longitud = float("4.601992771389502"), float("-74.06610470441926"), float("10.507688799813222"), float("-75.4706488665794")
             results, deltaTime = controller.req_2(control, origen_latitud, origen_longitud, destino_latitud, destino_longitud)
             data = results[1]
             print_req_2(control, data, deltaTime, results[0])
