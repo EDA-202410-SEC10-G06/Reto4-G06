@@ -544,18 +544,23 @@ def req_4(data_structs):
     Función que soluciona el requerimiento 4
     """
     # TODO: Realizar el requerimiento 4
+    lst_aeropuertos = lt.newList("ARRAY_LIST")
+    
     mayor_concurrencia = lt.firstElement(data_structs["AirportsCargaList"])
     aeropuerto = mayor_concurrencia["airport"]
     graph = prim.PrimMST(data_structs["AirportCargaConnections"], aeropuerto)
     arcos = prim.edgesMST(data_structs["AirportCargaConnections"], graph)["mst"]
-    print(data_structs["AirportCargaConnections"])
+    dist_total = prim.weightMST(data_structs["AirportCargaConnections"], graph)
+    total_trayectos = lt.size(arcos)
+    
 
     for arco in lt.iterator(arcos):
-        vertexA = arco["vertexA"]
-        vertexB = arco["vertexB"]
-        peso = gr.getEdge(data_structs["AirportCargaConnections"], vertexA, vertexB)["weight"]
-    #print(graph)
-
+        vertexA = mp.get(data_structs["AirportsInfoMap"], arco["vertexA"])["value"]
+        vertexB = mp.get(data_structs["AirportsInfoMap"], arco["vertexB"])["value"]
+        lt.addLast(lst_aeropuertos, (vertexA, vertexB))
+    #print(lst_aeropuertos)
+    
+    return dist_total, total_trayectos, lst_aeropuertos
 
 def req_5(data_structs):
     """

@@ -77,25 +77,25 @@ def load_flights(control, file):
         model.addFlightConnection(control,flight)
         
     #Conexiones de mapa de todos los aeropuertos por distancia
-    model.addRouteConnections(control, "AirportsMap","AirportDistanceConnections")
+    #model.addRouteConnections(control, "AirportsMap","AirportDistanceConnections")
     #Conexiones de mapa de todos los aeropuertos por tiempo
-    model.addRouteConnections(control, "AirportsMap","AirportTimeConnections")
+    #model.addRouteConnections(control, "AirportsMap","AirportTimeConnections")
     
     #Conexiones de mapa de los aeropuertos COMERCIALES
     #Por distancia:
-    model.addRouteConnections(control, "AirportsComercialMap","AirportComercialConnections")
+    #model.addRouteConnections(control, "AirportsComercialMap","AirportComercialConnections")
     #Por tiempo:
-    model.addRouteConnections(control, "AirportsComercialMap","AirportComercialTimeConnections")
+    #model.addRouteConnections(control, "AirportsComercialMap","AirportComercialTimeConnections")
     #Lista de aeropuertos comerciales:
     model.addAirportToList(control, "AirportsComercialMap", "AirportsComercialList")
     
     #Conexiones de mapa de los aeropuertos MILITARES
-    model.addRouteConnections(control, "AirportsMilitarMap","AirportMilitarConnections" )
+    #model.addRouteConnections(control, "AirportsMilitarMap","AirportMilitarConnections" )
     #Lista de aeropuertos militares:
     model.addAirportToList(control, "AirportsMilitarMap", "AirportsMilitarList")
     
     #Conexiones de mapa de los aeropuertos CARGA
-    model.addRouteConnections(control, "AirportsCargaMap","AirportCargaConnections" )
+    #model.addRouteConnections(control, "AirportsCargaMap","AirportCargaConnections" )
     #Lista de aeropuertos carga:
     model.addAirportToList(control, "AirportsCargaMap", "AirportsCargaList")
     
