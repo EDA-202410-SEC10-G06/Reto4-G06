@@ -181,25 +181,44 @@ def req_3(control):
 
 def req_4(control):
     """
-    Retorna el resultado del requerimiento 4
+    Retorna el resultado del requerimiento 3
     """
-    # TODO: Modificar el requerimiento 4
-    pass
+    # TODO: Modificar el requerimiento 3
+    start_time = get_time()
+    
+    result = model.req_4(control)
+    stop_time = get_time()
+    deltaTime = delta_time(start_time, stop_time)
+    
+    return result, deltaTime
 
 
 def req_5(control):
     """
-    Retorna el resultado del requerimiento 5
+    Retorna el resultado del requerimiento 3
     """
-    # TODO: Modificar el requerimiento 5
-    pass
+    # TODO: Modificar el requerimiento 3
+    start_time = get_time()
+    
+    result = model.req_5(control)
+    stop_time = get_time()
+    deltaTime = delta_time(start_time, stop_time)
+    
+    return result, deltaTime
 
-def req_6(control):
+def req_6(control, numAirports):
     """
     Retorna el resultado del requerimiento 6
     """
     # TODO: Modificar el requerimiento 6
-    pass
+
+    start_time = get_time()
+    
+    result = model.req_6(control, numAirports)
+    stop_time = get_time()
+    deltaTime = delta_time(start_time, stop_time)
+    
+    return result, deltaTime
 
 
 def req_7(control, origen_latitud, origen_longitud, destino_latitud, destino_longitud):

@@ -84,7 +84,9 @@ def new_data_structs():
             'AirportMilitarConnections': None,
             'searchMST': None,           
             'search': None,
-            'paths': None
+            'paths': None,
+            'MSTindividuales': None,
+            #'MSTindividualesTime': None
         }
 
         #---------------------------------------
@@ -139,9 +141,6 @@ def new_data_structs():
                                               size=14000,
                                               cmpfunction=compareKeysId)
         
-        
-        
-        
         #Req 3, Peso: distance
         data_structs["AirportComercialConnections"] = gr.newGraph(datastructure='ADJ_LIST',
                                               directed=False,
@@ -165,8 +164,15 @@ def new_data_structs():
                                               size=14000,
                                               cmpfunction=compareKeysId)
         
+        data_structs["MSTindividuales"] = gr.newGraph(datastructure='ADJ_LIST',
+                                              directed=False,
+                                              size=14000,
+                                              cmpfunction=compareKeysId)
         
-        
+        #data_structs["MSTindividualesTime"] = gr.newGraph(datastructure='ADJ_LIST',
+                                              #directed=False,
+                                              #size=14000,
+                                              #cmpfunction=compareKeysId)
         
         #Esta estructura es provicional: se ejecuta con el documento de aeropuertos.
         data_structs["AirportDistanceConnectionsAirportsDoc"] = gr.newGraph(datastructure='ADJ_LIST',
@@ -789,47 +795,249 @@ def req_3(data_structs):
     Función que soluciona el requerimiento 3
     """
     # TODO: Realizar el requerimiento 3
-    
+        
     totalDistance = 0
     
-    ConcurrenceAirport = lt.firstElement(data_structs["AirportsComercialList"])
+    trayectoTime = 0
+    trayectoDistance = 0
+    lstAirports = lt.newList("ARRAY_LIST")
     
+    ConcurrenceAirport = lt.firstElement(data_structs["AirportsComercialList"])
     primSearch = prim.PrimMST(data_structs["AirportComercialConnections"], ConcurrenceAirport["airport"])
-
     edgesMST = prim.edgesMST(data_structs["AirportComercialConnections"], primSearch)["mst"]
-
+    
     totalDistance = prim.weightMST(data_structs["AirportComercialConnections"], primSearch)
     
     for edge in lt.iterator(edgesMST):
         
-        vertexA = mp.get(data_structs["AirportsInfoMap"], edge["vertexA"])["value"]
-        vertexB = mp.get(data_structs["AirportsInfoMap"], edge["vertexB"])["value"]
+        addAirportToGraph(data_structs, edge["vertexA"],"MSTindividuales")
+        addAirportToGraph(data_structs, edge["vertexB"],"MSTindividuales")
+
+        addDistanceConnectionToAirports(data_structs, edge["vertexA"], edge["vertexB"], edge["weight"], "MSTindividuales")
         
-    return ConcurrenceAirport, totalDistance, 
+    searchPaths(data_structs, ConcurrenceAirport["airport"], 'bfs', "AirportComercialConnections")
+    
+    vertices = gr.vertices(data_structs["MSTindividuales"])
+    
+    for vertex in lt.iterator(vertices):
+        if vertex != ConcurrenceAirport["airport"]:
+        
+            path = searchPathTo(data_structs, vertex, 'dfs')
+            
+            prevAirport = None
+            
+            for airport in lt.iterator(path):
+
+                if prevAirport is not None:
+                    distance = float(gr.getEdge(data_structs["AirportComercialConnections"], prevAirport, airport)["weight"])
+                    time = float(gr.getEdge(data_structs["AirportComercialTimeConnections"], prevAirport, airport)["weight"])
+                    
+                    trayectoTime += time
+                    trayectoDistance += distance
+                    
+                prevAirport = airport
+    
+            entry = {"path": path,
+                    "distance": trayectoDistance,
+                    "time": trayectoTime,
+                    "destino": vertex
+            }
+            
+            lt.addLast(lstAirports, entry)
+
+            trayectoTime = 0
+            trayectoDistance = 0
+            
+    
+    numTrayectos = lt.size(edgesMST) - 1
+    
+    
+    return totalDistance, ConcurrenceAirport["airport"], numTrayectos, lstAirports
 
 
 def req_4(data_structs):
     """
-    Función que soluciona el requerimiento 4
+    Función que soluciona el requerimiento 3
     """
-    # TODO: Realizar el requerimiento 4
-    pass
+    # TODO: Realizar el requerimiento 3
+        
+    totalDistance = 0
+    
+    trayectoTime = 0
+    trayectoDistance = 0
+    lstAirports = lt.newList("ARRAY_LIST")
+    
+    ConcurrenceAirport = lt.firstElement(data_structs["AirportsCargaList"])
+    primSearch = prim.PrimMST(data_structs["AirportCargaConnections"], ConcurrenceAirport["airport"])
+    edgesMST = prim.edgesMST(data_structs["AirportCargaConnections"], primSearch)["mst"]
+    
+    totalDistance = prim.weightMST(data_structs["AirportCargaConnections"], primSearch)
+    
+    for edge in lt.iterator(edgesMST):
+        
+        addAirportToGraph(data_structs, edge["vertexA"],"MSTindividuales")
+        addAirportToGraph(data_structs, edge["vertexB"],"MSTindividuales")
+
+        addDistanceConnectionToAirports(data_structs, edge["vertexA"], edge["vertexB"], edge["weight"], "MSTindividuales")
+        
+    searchPaths(data_structs, ConcurrenceAirport["airport"], 'bfs', "AirportCargaConnections")
+    
+    vertices = gr.vertices(data_structs["MSTindividuales"])
+    
+    for vertex in lt.iterator(vertices):
+        if vertex != ConcurrenceAirport["airport"]:
+        
+            path = searchPathTo(data_structs, vertex, 'dfs')
+            
+            prevAirport = None
+            
+            for airport in lt.iterator(path):
+
+                if prevAirport is not None:
+                    distance = float(gr.getEdge(data_structs["AirportCargaConnections"], prevAirport, airport)["weight"])
+                    time = float(gr.getEdge(data_structs["AirportTimeConnections"], prevAirport, airport)["weight"])
+                    
+                    trayectoTime += time
+                    trayectoDistance += distance
+                    
+                prevAirport = airport
+    
+            entry = {"path": path,
+                    "distance": trayectoDistance,
+                    "time": trayectoTime,
+                    "destino": vertex
+            }
+            
+            lt.addLast(lstAirports, entry)
+
+            trayectoTime = 0
+            trayectoDistance = 0
+            
+    
+    numTrayectos = lt.size(edgesMST) - 1
+    
+    
+    return totalDistance, ConcurrenceAirport["airport"], numTrayectos, lstAirports
 
 
 def req_5(data_structs):
     """
-    Función que soluciona el requerimiento 5
+    Función que soluciona el requerimiento 3
     """
-    # TODO: Realizar el requerimiento 5
-    pass
+    # TODO: Realizar el requerimiento 3
+        
+    totalDistance = 0
+    
+    trayectoTime = 0
+    trayectoDistance = 0
+    lstAirports = lt.newList("ARRAY_LIST")
+    
+    ConcurrenceAirport = lt.firstElement(data_structs["AirportsMilitarList"])
+    primSearch = prim.PrimMST(data_structs["AirportMilitarConnections"], ConcurrenceAirport["airport"])
+    edgesMST = prim.edgesMST(data_structs["AirportMilitarConnections"], primSearch)["mst"]
+    
+    totalDistance = prim.weightMST(data_structs["AirportMilitarConnections"], primSearch)
+    
+    for edge in lt.iterator(edgesMST):
+        
+        addAirportToGraph(data_structs, edge["vertexA"],"MSTindividuales")
+        addAirportToGraph(data_structs, edge["vertexB"],"MSTindividuales")
+
+        addDistanceConnectionToAirports(data_structs, edge["vertexA"], edge["vertexB"], edge["weight"], "MSTindividuales")
+        
+    searchPaths(data_structs, ConcurrenceAirport["airport"], 'bfs', "AirportMilitarConnections")
+    
+    vertices = gr.vertices(data_structs["MSTindividuales"])
+    
+    for vertex in lt.iterator(vertices):
+        if vertex != ConcurrenceAirport["airport"]:
+        
+            path = searchPathTo(data_structs, vertex, 'dfs')
+            
+            prevAirport = None
+            
+            for airport in lt.iterator(path):
+
+                if prevAirport is not None:
+                    distance = float(gr.getEdge(data_structs["AirportMilitarConnections"], prevAirport, airport)["weight"])
+                    time = float(gr.getEdge(data_structs["AirportTimeConnections"], prevAirport, airport)["weight"])
+                    
+                    trayectoTime += time
+                    trayectoDistance += distance
+                    
+                prevAirport = airport
+    
+            entry = {"path": path,
+                    "distance": trayectoDistance,
+                    "time": trayectoTime,
+                    "destino": vertex
+            }
+            
+            lt.addLast(lstAirports, entry)
+
+            trayectoTime = 0
+            trayectoDistance = 0
+            
+    
+    numTrayectos = lt.size(edgesMST) - 1
+    
+    
+    return totalDistance, ConcurrenceAirport["airport"], numTrayectos, lstAirports
 
 
-def req_6(data_structs):
+def req_6(data_structs, numAirports):
     """
     Función que soluciona el requerimiento 6
     """
     # TODO: Realizar el requerimiento 6
-    pass
+    desviacionlongitud = (30/78.62)
+    desviacionLatitud = (30/111.32)
+    
+    totalDistancia = 0
+    totalTiempo = 0
+    NumAirports = 0
+    
+    lstAirports  = lt.newList("ARRAY_LIST")
+    
+    mapAirports = mp.newMap(numelements = 100,
+                     maptype="PROBING",              
+                    cmpfunction = compareKeysId)
+    
+    #searchPaths(data_structs, origin, 'dfs', "AirportComercialConnections")
+    
+
+    """
+    
+    for 
+             
+        minimumCostPaths(data_structs, origin, "AirportComercialConnections")
+        path = minimumCostPath(data_structs, destino)
+        
+        if path is not None:
+            for edge in lt.iterator(path):
+                
+                totalDistancia += edge["weight"]
+                edgeTime = gr.getEdge(data_structs["AirportComercialTimeConnections"], edge["vertexA"], edge["vertexB"])
+                totalTiempo += float(edgeTime["weight"])
+                
+                vertexA = mp.get(data_structs["AirportsInfoMap"], edge["vertexA"])["value"]
+                vertexB = mp.get(data_structs["AirportsInfoMap"], edge["vertexB"])["value"]
+                
+                entry = (vertexA, vertexB)
+                
+                lt.addLast(lstAirports, entry)
+            
+            NumAirports = lt.size(path)*2
+            
+            results = ["FOUNDPATH",[totalDistancia, NumAirports, lstAirports, origin, destino, totalTiempo]]
+    
+        else:
+            closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin = findClosestAirport(data_structs,origen_latitud, origen_longitud, destino_latitud, destino_longitud)
+            results =  ["NOPATH",[closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin]]
+            
+    
+    return results
+    """
 
 
 def req_7(data_structs, origen_latitud, origen_longitud, destino_latitud, destino_longitud):
@@ -888,10 +1096,6 @@ def req_7(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
         results =  ["NOTFOUND",[closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin]]
     
     return results
-    
-    
-    
-    
     
 
 def req_8(data_structs):
