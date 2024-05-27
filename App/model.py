@@ -803,9 +803,12 @@ def req_3(data_structs):
     
     ConcurrenceAirport = lt.firstElement(data_structs["AirportsComercialList"])
     primSearch = prim.PrimMST(data_structs["AirportComercialConnections"], ConcurrenceAirport["airport"])
-    edgesMST = prim.edgesMST(data_structs["AirportComercialConnections"], primSearch)["mst"]
     
     totalDistance = prim.weightMST(data_structs["AirportComercialConnections"], primSearch)
+    
+    edgesMST = primSearch["mst"]
+    
+    numTrayectos = lt.size(edgesMST)
     
     for edge in lt.iterator(edgesMST):
         
@@ -847,9 +850,7 @@ def req_3(data_structs):
             trayectoTime = 0
             trayectoDistance = 0
             
-    
-    numTrayectos = lt.size(edgesMST)
-    
+
     
     return totalDistance, ConcurrenceAirport["airport"], numTrayectos, lstAirports
 
@@ -866,11 +867,14 @@ def req_4(data_structs):
     trayectoDistance = 0
     lstAirports = lt.newList("ARRAY_LIST")
     
-    ConcurrenceAirport = lt.firstElement(data_structs["AirportsCargaList"])
-    primSearch = prim.PrimMST(data_structs["AirportCargaConnections"], ConcurrenceAirport["airport"])
-    edgesMST = prim.edgesMST(data_structs["AirportCargaConnections"], primSearch)["mst"]
+    ConcurrenceAirport = lt.firstElement(data_structs["AirportsComercialList"])
+    primSearch = prim.PrimMST(data_structs["AirportComercialConnections"], ConcurrenceAirport["airport"])
     
-    totalDistance = prim.weightMST(data_structs["AirportCargaConnections"], primSearch)
+    totalDistance = prim.weightMST(data_structs["AirportComercialConnections"], primSearch)
+    
+    edgesMST = primSearch["mst"]
+    
+    numTrayectos = lt.size(edgesMST)
     
     for edge in lt.iterator(edgesMST):
         
@@ -911,10 +915,7 @@ def req_4(data_structs):
 
             trayectoTime = 0
             trayectoDistance = 0
-            
-    
-    numTrayectos = lt.size(edgesMST)
-    
+                
     
     return totalDistance, ConcurrenceAirport["airport"], numTrayectos, lstAirports
 
@@ -931,11 +932,14 @@ def req_5(data_structs):
     trayectoDistance = 0
     lstAirports = lt.newList("ARRAY_LIST")
     
-    ConcurrenceAirport = lt.firstElement(data_structs["AirportsMilitarList"])
-    primSearch = prim.PrimMST(data_structs["AirportMilitarConnections"], ConcurrenceAirport["airport"])
-    edgesMST = prim.edgesMST(data_structs["AirportMilitarConnections"], primSearch)["mst"]
+    ConcurrenceAirport = lt.firstElement(data_structs["AirportsComercialList"])
+    primSearch = prim.PrimMST(data_structs["AirportComercialConnections"], ConcurrenceAirport["airport"])
     
-    totalDistance = prim.weightMST(data_structs["AirportMilitarConnections"], primSearch)
+    totalDistance = prim.weightMST(data_structs["AirportComercialConnections"], primSearch)
+    
+    edgesMST = primSearch["mst"]
+    
+    numTrayectos = lt.size(edgesMST)
     
     for edge in lt.iterator(edgesMST):
         
@@ -976,9 +980,6 @@ def req_5(data_structs):
 
             trayectoTime = 0
             trayectoDistance = 0
-            
-    
-    numTrayectos = lt.size(edgesMST)
     
     
     return totalDistance, ConcurrenceAirport["airport"], numTrayectos, lstAirports
