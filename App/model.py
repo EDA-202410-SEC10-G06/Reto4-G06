@@ -737,8 +737,7 @@ def req_1(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
         results =  ["NOTFOUND",[closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin]]
     
     return results
-    
-    
+     
 
 def req_2(data_structs, origen_latitud, origen_longitud, destino_latitud, destino_longitud):
     """
@@ -849,7 +848,7 @@ def req_3(data_structs):
             trayectoDistance = 0
             
     
-    numTrayectos = lt.size(edgesMST) - 1
+    numTrayectos = lt.size(edgesMST)
     
     
     return totalDistance, ConcurrenceAirport["airport"], numTrayectos, lstAirports
@@ -914,7 +913,7 @@ def req_4(data_structs):
             trayectoDistance = 0
             
     
-    numTrayectos = lt.size(edgesMST) - 1
+    numTrayectos = lt.size(edgesMST)
     
     
     return totalDistance, ConcurrenceAirport["airport"], numTrayectos, lstAirports
@@ -979,7 +978,7 @@ def req_5(data_structs):
             trayectoDistance = 0
             
     
-    numTrayectos = lt.size(edgesMST) - 1
+    numTrayectos = lt.size(edgesMST)
     
     
     return totalDistance, ConcurrenceAirport["airport"], numTrayectos, lstAirports
