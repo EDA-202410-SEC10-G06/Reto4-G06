@@ -990,7 +990,7 @@ def req_6(data_structs, numAirports):
     
     ConcurrenceAirport = lt.firstElement(data_structs["AirportsComercialList"])
 
-    lst_n_airports = lt.subList(data_structs["AirportsComercialList"], 1, numAirports)
+    lst_n_airports = lt.subList(data_structs["AirportsComercialList"], 2, numAirports)
     
     for airport in lt.iterator(lst_n_airports):
         
@@ -1006,7 +1006,7 @@ def req_6(data_structs, numAirports):
         if path is not None:
             for edge in lt.iterator(path):
                 
-                trayectoTime += edge["weight"]
+                trayectoDistance += edge["weight"]
                 edgeTime = gr.getEdge(data_structs["AirportComercialTimeConnections"], edge["vertexA"], edge["vertexB"])
                 trayectoTime += float(edgeTime["weight"])
                 

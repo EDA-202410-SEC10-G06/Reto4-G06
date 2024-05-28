@@ -254,17 +254,37 @@ def print_tabulate(data_structs, lista, condicion):
         
         print(tabulate(data_tabulate, headers=headers, tablefmt='fancy_grid')) 
         
-    elif condicion == "req6Airports":
+    elif condicion == "req6Vuelos":
         
-        headers = ["NOMBRE", "ICAO", "CIUDAD", "PAIS"]
+        headers = ["ORIGEN", "DESTINO"]
         
         data_tabulate = []
     
         while (not stack.isEmpty(lista)):
             element = stack.pop(lista)
-            airport = mp.get(data_structs["AirportsInfoMap"], element)["value"]
+            vertexA = element[0]['ICAO']
+            vertexB = element[1]['ICAO']
+            
                         
-            data_tabulate.append([airport["NOMBRE"], airport["ICAO"], airport["CIUDAD"], airport["PAIS"]])
+            data_tabulate.append([vertexA, vertexB])
+        
+        
+        print(tabulate(data_tabulate, headers=headers, tablefmt='fancy_grid')) 
+        
+    elif condicion == "req6Airport":
+        
+        headers = ["NOMBRE", "ICAO", "CIUDAD", 'PAIS', 'CONCURRENCIA']
+        data_tabulate = []
+        
+        element = mp.get(data_structs['AirportsInfoMap'], lista['airport'])['value']
+               
+        
+        
+        
+
+            
+                        
+        data_tabulate.append([element['NOMBRE'],element['ICAO'], element['CIUDAD'], element['PAIS'], lista['numeroVuelos']])
         
         
         print(tabulate(data_tabulate, headers=headers, tablefmt='fancy_grid')) 
@@ -438,7 +458,8 @@ def print_req_6(data_structs, results, deltaTime):
     print ("--------------------------------------------------------------------")
     print("\n")
     print("--------------------------------------------------------------------")
-    print("Aeropuerto de mayor concurrencia comercial: ", results[0])
+    print("Aeropuerto de mayor concurrencia comercial: ", results[0]['airport'])
+    print_tabulate(data_structs, results[0], "req6Airport")
     print("--------------------------------------------------------------------")
     print("TRAYECTOS: ")
     print("\n")
@@ -456,25 +477,25 @@ def print_req_6(data_structs, results, deltaTime):
             print("Aeropuerto origen: ", results[0]["airport"])
             print("Aeropuertos visitados: ", lt.size(trayecto["lstAirports"]))
             print("Destino: ", trayecto["destino"]["airport"])
-            print("Distancia: ", trayecto["distance"], " KM.")
-            print("Tiempo total: ", trayecto["time"], " min.")
+            print("Distancia: ", round(trayecto["distance"], 3), " KM.")
+            print("Tiempo total: ", round(trayecto["time"], 3), " min.")
             print("--------------------------------------------------------------------")
-            print_tabulate(data_structs, trayecto["path"], "req6Airports")
+            print_tabulate(data_structs, trayecto["path"], "req6Vuelos")
             print("--------------------------------------------------------------------")
         
         
         print("--------------------------------------------------------------------")
         print("                       ULTIMOS 5 TRAYECTOS                         ")
         print("--------------------------------------------------------------------")
-        for trayecto in data[:5]:
+        for trayecto in data[-5:]:
         
             print("--------------------------------------------------------------------")
             print("Aeropuerto origen: ", results[0]["airport"])
             print("Aeropuertos visitados: ", lt.size(trayecto["lstAirports"]))
             print("Destino: ", trayecto["destino"]["airport"])
-            print("Distancia: ", trayecto["distance"], " KM.")
-            print("Tiempo total: ", trayecto["time"], " min.")
-            print_tabulate(data_structs, trayecto["path"], "individual")
+            print("Distancia: ", round(trayecto["distance"], 3), " KM.")
+            print("Tiempo total: ", round(trayecto["time"], 3), " min.")
+            print_tabulate(data_structs, trayecto["path"], "req6Vuelos")
             print("--------------------------------------------------------------------")
     
     else:
