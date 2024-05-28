@@ -277,15 +277,8 @@ def print_tabulate(data_structs, lista, condicion):
         data_tabulate = []
         
         element = mp.get(data_structs['AirportsInfoMap'], lista['airport'])['value']
-               
-        
-        
-        
-
-            
                         
         data_tabulate.append([element['NOMBRE'],element['ICAO'], element['CIUDAD'], element['PAIS'], lista['numeroVuelos']])
-        
         
         print(tabulate(data_tabulate, headers=headers, tablefmt='fancy_grid')) 
         
@@ -504,10 +497,11 @@ def print_req_6(data_structs, results, deltaTime):
         
             print("--------------------------------------------------------------------")
             print("Aeropuerto origen: ", results[0]["airport"])
+            print("Aeropuertos visitados: ", lt.size(trayecto["lstAirports"]))
             print("Destino: ", trayecto["destino"]["airport"])
-            print("Distancia: ", trayecto["distance"], " KM.")
-            print("Tiempo total: ", trayecto["time"], " min.")
-            print_tabulate(data_structs, trayecto["path"], "individual")
+            print("Distancia: ", round(trayecto["distance"], 3), " KM.")
+            print("Tiempo total: ", round(trayecto["time"], 3), " min.")
+            print_tabulate(data_structs, trayecto["path"], "req6Vuelos")
             print("--------------------------------------------------------------------")
     
     
