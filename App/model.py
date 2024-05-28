@@ -986,11 +986,48 @@ def req_6(data_structs, numAirports):
     totalTiempo = 0
     NumAirports = 0
     
-    lstAirports  = lt.newList("ARRAY_LIST")
+    lstPaths = lt.newList("ARRAY_LIST")
     
-    lst_n_airports = lt.subList(data_structs["AirportsComercialList"], numAirports)
+    ConcurrenceAirport = lt.firstElement(data_structs["AirportsComercialList"])
+
+    lst_n_airports = lt.subList(data_structs["AirportsComercialList"], 1, numAirports)
     
+    for airport in lt.iterator(lst_n_airports):
+        
+        trayectoDistance = 0
+        trayectoTime = 0
+        
+        lstPath = lt.newList("ARRAY_LIST")
+        lstAirports = lt.newList("ARRAY_LIST")
+        
+        paths = minimumCostPaths(data_structs, ConcurrenceAirport["airport"], "AirportComercialConnections")
+        path = minimumCostPath(data_structs, airport["airport"], paths)
+        
+        if path is not None:
+            for edge in lt.iterator(path):
+                
+                trayectoTime += edge["weight"]
+                edgeTime = gr.getEdge(data_structs["AirportComercialTimeConnections"], edge["vertexA"], edge["vertexB"])
+                trayectoTime += float(edgeTime["weight"])
+                
+                vertexA = mp.get(data_structs["AirportsInfoMap"], edge["vertexA"])["value"]
+                vertexB = mp.get(data_structs["AirportsInfoMap"], edge["vertexB"])["value"]
+                
+                entry = (vertexA, vertexB)
+                
+                lt.addLast(lstPath, entry)
+                                
+        
+        entry = {"path": lstPath,
+                "distance": trayectoDistance,
+                "time": trayectoTime,
+                "destino": airport,
+                'lstAirports': path
+            }
+        
+        lt.addLast(lstPaths, entry)
     
+    return ConcurrenceAirport, lstPaths
     
     
     
@@ -1036,7 +1073,7 @@ def req_7(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
                 
                 lt.addLast(lstAirports, entry)
             
-            NumAirports = lt.size(path)*2
+            NumAirports = lt.size(path)+1
             
             results = ["FOUNDPATH",[totalDistancia, NumAirports, lstAirports, origin, destino, totalTiempo]]
     

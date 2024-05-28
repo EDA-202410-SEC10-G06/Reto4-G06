@@ -252,7 +252,23 @@ def print_tabulate(data_structs, lista, condicion):
             data_tabulate.append([airport["NOMBRE"], airport["ICAO"], airport["CIUDAD"]])
         
         
-        print(tabulate(data_tabulate, headers=headers, tablefmt='fancy_grid'))  
+        print(tabulate(data_tabulate, headers=headers, tablefmt='fancy_grid')) 
+        
+    elif condicion == "req6Airports":
+        
+        headers = ["NOMBRE", "ICAO", "CIUDAD", "PAIS"]
+        
+        data_tabulate = []
+    
+        while (not stack.isEmpty(lista)):
+            element = stack.pop(lista)
+            airport = mp.get(data_structs["AirportsInfoMap"], element)["value"]
+                        
+            data_tabulate.append([airport["NOMBRE"], airport["ICAO"], airport["CIUDAD"], airport["PAIS"]])
+        
+        
+        print(tabulate(data_tabulate, headers=headers, tablefmt='fancy_grid')) 
+        
         
     
 def print_req_1(data_structs, results, deltaTime, condicion):
@@ -410,12 +426,70 @@ def print_individuales(data_structs, results, deltaTime):
         print("--------------------------------------------------------------------")
 
 
-def print_req_6(control):
+def print_req_6(data_structs, results, deltaTime):
     """
         Función que imprime la solución del Requerimiento 6 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 6
-    pass
+    
+    
+    print ("--------------------------------------------------------------------")
+    print("Tiempo [ms]: ", f"{deltaTime:.3f}", "||")
+    print ("--------------------------------------------------------------------")
+    print("\n")
+    print("--------------------------------------------------------------------")
+    print("Aeropuerto de mayor concurrencia comercial: ", results[0])
+    print("--------------------------------------------------------------------")
+    print("TRAYECTOS: ")
+    print("\n")
+    
+    data = results[1]["elements"]
+    
+    if lt.size(results[1]) >= 10:
+    
+        print("--------------------------------------------------------------------")
+        print("                       PRIMEROS 5 TRAYECTOS                         ")
+        print("--------------------------------------------------------------------")
+        for trayecto in data[:5]:
+        
+            print("--------------------------------------------------------------------")
+            print("Aeropuerto origen: ", results[0]["airport"])
+            print("Aeropuertos visitados: ", lt.size(trayecto["lstAirports"]))
+            print("Destino: ", trayecto["destino"]["airport"])
+            print("Distancia: ", trayecto["distance"], " KM.")
+            print("Tiempo total: ", trayecto["time"], " min.")
+            print("--------------------------------------------------------------------")
+            print_tabulate(data_structs, trayecto["path"], "req6Airports")
+            print("--------------------------------------------------------------------")
+        
+        
+        print("--------------------------------------------------------------------")
+        print("                       ULTIMOS 5 TRAYECTOS                         ")
+        print("--------------------------------------------------------------------")
+        for trayecto in data[:5]:
+        
+            print("--------------------------------------------------------------------")
+            print("Aeropuerto origen: ", results[0]["airport"])
+            print("Aeropuertos visitados: ", lt.size(trayecto["lstAirports"]))
+            print("Destino: ", trayecto["destino"]["airport"])
+            print("Distancia: ", trayecto["distance"], " KM.")
+            print("Tiempo total: ", trayecto["time"], " min.")
+            print_tabulate(data_structs, trayecto["path"], "individual")
+            print("--------------------------------------------------------------------")
+    
+    else:
+         
+        for trayecto in data:
+        
+            print("--------------------------------------------------------------------")
+            print("Aeropuerto origen: ", results[0]["airport"])
+            print("Destino: ", trayecto["destino"]["airport"])
+            print("Distancia: ", trayecto["distance"], " KM.")
+            print("Tiempo total: ", trayecto["time"], " min.")
+            print_tabulate(data_structs, trayecto["path"], "individual")
+            print("--------------------------------------------------------------------")
+    
+    
 
 
 def print_req_7(data_structs, results, deltaTime, condicion):
@@ -575,8 +649,8 @@ if __name__ == "__main__":
         elif int(inputs) == 7:
             numAirports = int(input("Digite el numero de aeropuertos que desea analizar: "))
             results, deltaTime = controller.req_6(control, numAirports)
-            data = results[1]
-            print_req_6(control, data, deltaTime, results[0])
+
+            print_req_6(control, results, deltaTime)
 
         elif int(inputs) == 8:
             #origen_latitud = float(input('Ingrese la latitud de origen: '))
