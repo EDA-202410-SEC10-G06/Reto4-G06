@@ -998,7 +998,9 @@ def req_6(data_structs, numAirports):
         trayectoTime = 0
         
         lstPath = lt.newList("ARRAY_LIST")
-        lstAirports = lt.newList("ARRAY_LIST")
+        mapAirports = mp.newMap(numelements = 15,
+                                    maptype="CHAINING",
+                                    cmpfunction = compareKeysId)
         
         paths = minimumCostPaths(data_structs, ConcurrenceAirport["airport"], "AirportComercialConnections")
         path = minimumCostPath(data_structs, airport["airport"], paths)
@@ -1016,13 +1018,18 @@ def req_6(data_structs, numAirports):
                 entry = (vertexA, vertexB)
                 
                 lt.addLast(lstPath, entry)
-                                
+                
+                if not mp.contains(mapAirports, vertexA["ICAO"]):
+                    mp.put(mapAirports, vertexA["ICAO"], True)
+                
+                if not mp.contains(mapAirports, vertexB["ICAO"]):
+                    mp.put(mapAirports, vertexB["ICAO"], True)                                
         
         entry = {"path": lstPath,
                 "distance": trayectoDistance,
                 "time": trayectoTime,
                 "destino": airport,
-                'lstAirports': path,
+                'lstAirports': mp.keySet(mapAirports),
                 'origen': ConcurrenceAirport
             }
         
@@ -1104,9 +1111,6 @@ def req_8(data_structs, opcion):
     return opciones[str(opcion)]
     
     
-    
-
-
 #========================================================
 # Funciones de consulta sobre las estructuras
 #========================================================
