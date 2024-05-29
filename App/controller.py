@@ -235,12 +235,15 @@ def req_7(control, origen_latitud, origen_longitud, destino_latitud, destino_lon
     return result, deltaTime
 
 
-def req_8(control):
+def req_8(control, opcion):
     """
     Retorna el resultado del requerimiento 8
     """
     # TODO: Modificar el requerimiento 8
-    pass
+    
+    result = model.req_8(control, opcion)
+    
+    return result
 
 #========================================================
 # Funciones de consulta sobre las estructuras

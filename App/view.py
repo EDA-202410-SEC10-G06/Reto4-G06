@@ -560,22 +560,23 @@ def print_req_7(data_structs, results, deltaTime, condicion):
         print("--------------------------------------------------------------------")
 
 
-def print_req_8(airports):
+def print_req_8(data_structs, airports, condicion):
     """
         Función que imprime la solución del Requerimiento 8 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 8
+    
     print("\n")
     print("-"*40)
 
     directorio_actual = os.path.dirname(os.path.abspath(__file__))
 
-    mapa = folium.Map(location = (40.7128, -74.0060), zoom_start = 7)
+    mapa = folium.Map(location = (4.71, -74.07), zoom_start = 6)
     
     print("Construyendo mapa...")
     print("\n")
-    
-    if lt.size(airports) > 200:
+    """
+        if lt.size(airports) > 200:
         for airport in airports["elements"][:100]:
             folium.Marker(location = (airport["LATITUD"],airport["LONGITUD"]),popup = airport["ICAO"], icon = folium.Icon("red")).add_to(mapa)
         
@@ -585,7 +586,85 @@ def print_req_8(airports):
     else:
         for airport in lt.iterator(airports):
             folium.Marker(location = (airport["LATITUD"],airport["LONGITUD"]),popup = airport["ICAO"], icon = folium.Icon("red")).add_to(mapa)
+    """
+        
+    if condicion == "basico":
+        
+        trail_coordinates = []
+        
+        for airport in lt.iterator(airports):
+            trail_coordinates.append((airport["LATITUD"], airport["LONGITUD"]))
+            folium.Marker(location = (airport["LATITUD"],airport["LONGITUD"]), popup = airport["ICAO"], icon = folium.Icon("red")).add_to(mapa)
             
+        folium.PolyLine(trail_coordinates, tooltip="Coast").add_to(mapa)
+    
+    if condicion == "individual":
+        
+        trail_coordinates = []
+        
+        for element in lt.iterator(airports):
+            while (not stack.isEmpty(element["path"])):
+                icao = stack.pop(element["path"])
+                
+                airport = mp.get(data_structs["AirportsInfoMap"], icao)["value"]
+                
+                trail_coordinates.append((airport["LATITUD"], airport["LONGITUD"]))
+                folium.Marker(location = (airport["LATITUD"],airport["LONGITUD"]), popup = airport["ICAO"], icon = folium.Icon("red")).add_to(mapa)
+                
+                
+        folium.PolyLine(trail_coordinates, tooltip="Coast").add_to(mapa)
+                
+    if condicion == "req6":
+        
+        trail_coordinates = []
+        
+        for path in lt.iterator(airports):
+            
+            if lt.size(path["path"]) != 0:
+            
+                for edge in lt.iterator(path["path"]):
+                    
+                    vertexA = edge[0]
+                    vertexB = edge[1]
+                    
+                    trail_coordinates.append((vertexA["LATITUD"], vertexA["LONGITUD"]))             
+                    trail_coordinates.append((vertexB["LATITUD"], vertexB["LONGITUD"]))
+                    
+                    folium.Marker(location = (vertexA["LATITUD"],vertexA["LONGITUD"]), popup = vertexA["ICAO"], icon = folium.Icon("red")).add_to(mapa)
+                    folium.Marker(location = (vertexB["LATITUD"],vertexB["LONGITUD"]), popup = vertexB["ICAO"], icon = folium.Icon("red")).add_to(mapa)
+
+            else:
+                
+                origen = mp.get(data_structs["AirportsInfoMap"], path["origen"]["airport"])["value"]
+                destino = mp.get(data_structs["AirportsInfoMap"], path["destino"]["airport"])["value"]
+                
+                trail_coordinates.append((origen["LATITUD"], origen["LONGITUD"]))
+                trail_coordinates.append((destino["LATITUD"], destino["LONGITUD"]))
+                    
+                folium.Marker(location = (origen["LATITUD"],origen["LONGITUD"]), popup = origen["ICAO"], icon = folium.Icon("red")).add_to(mapa)
+                folium.Marker(location = (destino["LATITUD"],destino["LONGITUD"]), popup = destino["ICAO"], icon = folium.Icon("red")).add_to(mapa)
+                
+
+        folium.PolyLine(trail_coordinates, tooltip="Coast").add_to(mapa)
+    
+    if condicion == "req7":
+        
+        trail_coordinates = []
+        
+        for edge in lt.iterator(airports):
+               
+            vertexA = edge[0]
+            vertexB = edge[1]
+            
+            trail_coordinates.append((vertexA["LATITUD"], vertexA["LONGITUD"]))             
+            trail_coordinates.append((vertexB["LATITUD"], vertexB["LONGITUD"]))
+            
+            folium.Marker(location = (vertexA["LATITUD"],vertexA["LONGITUD"]), popup = vertexA["ICAO"], icon = folium.Icon("red")).add_to(mapa)
+            folium.Marker(location = (vertexB["LATITUD"],vertexB["LONGITUD"]), popup = vertexB["ICAO"], icon = folium.Icon("red")).add_to(mapa)
+
+        folium.PolyLine(trail_coordinates, tooltip="Coast").add_to(mapa)
+        
+        
     folium.LayerControl().add_to(mapa)
     print("Mapa completado.")
     print("\n")
@@ -616,8 +695,7 @@ if __name__ == "__main__":
     Menu principal
     """
     working = True
-    lst_req_8 = lt.newList("ARRAY_LIST")
-    lst_req_8["elements"] = [0,0,0,0,0,0,0,0,0,0,0,0]
+    lst_req_8 = [0,0,0,0,0,0,0,0,0,0,0,0]
     #ciclo del menu
     while working:
         print_menu()
@@ -626,70 +704,99 @@ if __name__ == "__main__":
             print("Cargando información de los archivos ....\n")
             data = load_data(control, flights_file, airports_file )
         elif int(inputs) == 2:
-            #origen_latitud = float(input('Ingrese la latitud de origen: '))
-            #origen_longitud = float(input('Ingrese la longitud de origen: '))
+            origen_latitud = float(input('Ingrese la latitud de origen: '))
+            origen_longitud = float(input('Ingrese la longitud de origen: '))
             
-            #destino_latitud = float(input('Ingrese la latitud de destino: '))
-            #destino_longitud = float(input('Ingrese la longitud de destino: '))
+            destino_latitud = float(input('Ingrese la latitud de destino: '))
+            destino_longitud = float(input('Ingrese la longitud de destino: '))
             
-            origen_latitud, origen_longitud, destino_latitud, destino_longitud = float("4.601992771389502"), float("-74.06610470441926"), float("10.507688799813222"), float("-75.4706488665794")
+            #origen_latitud, origen_longitud, destino_latitud, destino_longitud = float("4.601992771389502"), float("-74.06610470441926"), float("10.507688799813222"), float("-75.4706488665794")
             results, deltaTime = controller.req_1(control, origen_latitud, origen_longitud, destino_latitud, destino_longitud)
             data = results[1]
+            
+            print(results[0])
+            
+            if results[0] == "FOUNDPATH":
+                lst_req_8[1] = data[2]
+            
             print_req_1(control, data, deltaTime, results[0])
             
         elif int(inputs) == 3:
-            #origen_latitud = float(input('Ingrese la latitud de origen: '))
-            #origen_longitud = float(input('Ingrese la longitud de origen: '))          #Polo sur: 90.0000° S, 45.0000° E
+            origen_latitud = float(input('Ingrese la latitud de origen: '))
+            origen_longitud = float(input('Ingrese la longitud de origen: '))          #Polo sur: 90.0000° S, 45.0000° E
             
-            #destino_latitud = float(input('Ingrese la latitud de destino: '))          #Antartida: float("82.8628"), float("135.0000")
-            #destino_longitud = float(input('Ingrese la longitud de destino: '))        #float("10.507688799813222"), float("-75.4706488665794")
+            destino_latitud = float(input('Ingrese la latitud de destino: '))          #Antartida: float("82.8628"), float("135.0000")
+            destino_longitud = float(input('Ingrese la longitud de destino: '))        #float("10.507688799813222"), float("-75.4706488665794")
             
-            origen_latitud, origen_longitud, destino_latitud, destino_longitud = float("4.601992771389502"), float("-74.06610470441926"), float("10.507688799813222"), float("-75.4706488665794")
+            #origen_latitud, origen_longitud, destino_latitud, destino_longitud = float("4.601992771389502"), float("-74.06610470441926"), float("10.507688799813222"), float("-75.4706488665794")
             results, deltaTime = controller.req_2(control, origen_latitud, origen_longitud, destino_latitud, destino_longitud)
             data = results[1]
+            
+            if results[0] == "FOUNDPATH":
+                lst_req_8[2] = data[2]
+            
             print_req_2(control, data, deltaTime, results[0])
 
         elif int(inputs) == 4:
             data, deltaTime = controller.req_3(control)
+            
+            lst_req_8[3] = data[3]
+            
             print_individuales(control, data, deltaTime)
 
         elif int(inputs) == 5:
             data, deltaTime = controller.req_4(control)
+            
+            lst_req_8[4] = data[3]
+            
             print_individuales(control, data, deltaTime)
 
         elif int(inputs) == 6:
             data, deltaTime = controller.req_5(control)
+            
+            lst_req_8[5] = data[3]
+            
             print_individuales(control, data, deltaTime)
 
         elif int(inputs) == 7:
             numAirports = int(input("Digite el numero de aeropuertos que desea analizar: "))
             results, deltaTime = controller.req_6(control, numAirports)
 
+            lst_req_8[6] = results[1]
+            
             print_req_6(control, results, deltaTime)
 
         elif int(inputs) == 8:
-            #origen_latitud = float(input('Ingrese la latitud de origen: '))
-            #origen_longitud = float(input('Ingrese la longitud de origen: '))          #Polo sur: 90.0000° S, 45.0000° E
+            origen_latitud = float(input('Ingrese la latitud de origen: '))
+            origen_longitud = float(input('Ingrese la longitud de origen: '))          #Polo sur: 90.0000° S, 45.0000° E
             
-            #destino_latitud = float(input('Ingrese la latitud de destino: '))          #Antartida: float("82.8628"), float("135.0000")
-            #destino_longitud = float(input('Ingrese la longitud de destino: '))        #float("10.507688799813222"), float("-75.4706488665794")
+            destino_latitud = float(input('Ingrese la latitud de destino: '))          #Antartida: float("82.8628"), float("135.0000")
+            destino_longitud = float(input('Ingrese la longitud de destino: '))        #float("10.507688799813222"), float("-75.4706488665794")
             
-            origen_latitud, origen_longitud, destino_latitud, destino_longitud = float("4.601992771389502"), float("-74.06610470441926"), float("10.507688799813222"), float("-75.4706488665794")
+            #origen_latitud, origen_longitud, destino_latitud, destino_longitud = float("4.601992771389502"), float("-74.06610470441926"), float("10.507688799813222"), float("-75.4706488665794")
             results, deltaTime = controller.req_7(control, origen_latitud, origen_longitud, destino_latitud, destino_longitud)
             data = results[1]
+            
+            
+            if results[0] == "FOUNDPATH":
+                lst_req_8[7] = data[2]
+            
             print_req_7(control, data, deltaTime, results[0])
 
         elif int(inputs) == 9:
             opcion = int(input("Digite el requerimiento que desea observar en el mapa: "))
             
-            if lt.getElement(lst_req_8,opcion) == 0:
+            if lst_req_8[opcion] == 0:
                 print("\n")
                 print("---------------------------------------")
                 print("No ha cargado el requerimiento todavia.")
                 print("---------------------------------------")
                 print("\n")
             else:
-                print_req_8(lt.getElement(lst_req_8,opcion))
+                
+                condicion = controller.req_8(control, opcion)
+                        
+                print_req_8(control, lst_req_8[opcion], condicion)
 
         elif int(inputs) == 0:
             working = False

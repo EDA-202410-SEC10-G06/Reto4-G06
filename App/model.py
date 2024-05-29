@@ -1022,15 +1022,13 @@ def req_6(data_structs, numAirports):
                 "distance": trayectoDistance,
                 "time": trayectoTime,
                 "destino": airport,
-                'lstAirports': path
+                'lstAirports': path,
+                'origen': ConcurrenceAirport
             }
         
         lt.addLast(lstPaths, entry)
     
     return ConcurrenceAirport, lstPaths
-    
-    
-    
 
 
 def req_7(data_structs, origen_latitud, origen_longitud, destino_latitud, destino_longitud):
@@ -1088,12 +1086,25 @@ def req_7(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
     return results
     
 
-def req_8(data_structs):
+def req_8(data_structs, opcion):
     """
     Función que soluciona el requerimiento 8
     """
     # TODO: Realizar el requerimiento 8
-    pass
+    
+    opciones = {"1": "basico",
+                "2": "basico",
+                "3": "individual",
+                "4": "individual",
+                "5": "individual",
+                "6": "req6",
+                "7": "req7"
+    }
+        
+    return opciones[str(opcion)]
+    
+    
+    
 
 
 #========================================================
