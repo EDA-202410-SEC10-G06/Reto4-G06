@@ -326,7 +326,7 @@ def print_req_1(data_structs, results, deltaTime, condicion):
         print ("--------------------------------------------------------------------")
         print("\n")
         print("--------------------------------------------------------------------")
-        print("--- NO SE ENCONTRO NINGUN CAMINO CON LAS ESPECIFICACIONES DADAS ----")
+        print("---- NO EXISTE NINGUN CAMINO ENTRE LOS AEROPUERTOS ENCONTRADOS -----")
         print("--------------------------------------------------------------------")
         print("\n")
         print("--------------------------------------------------------------------")
@@ -379,7 +379,7 @@ def print_req_2(data_structs, results, deltaTime, condicion):
         print ("--------------------------------------------------------------------")
         print("\n")
         print("--------------------------------------------------------------------")
-        print("------ NO SE ENCONTRO UN CAMINO CON LAS ESPECIFICACIONES DADAS -----")
+        print("---- NO EXISTE NINGUN CAMINO ENTRE LOS AEROPUERTOS ENCONTRADOS -----")
         print("--------------------------------------------------------------------")
         print("\n")
         print("--------------------------------------------------------------------")
@@ -566,7 +566,7 @@ def print_req_7(data_structs, results, deltaTime, condicion):
         print ("--------------------------------------------------------------------")
         print("\n")
         print("--------------------------------------------------------------------")
-        print("--- NO SE ENCONTRO NINGUN CAMINO CON LAS ESPECIFICACIONES DADAS ----")
+        print("---- NO EXISTE NINGUN CAMINO ENTRE LOS AEROPUERTOS ENCONTRADOS -----")
         print("--------------------------------------------------------------------")
         print("\n")
         print("--------------------------------------------------------------------")
@@ -581,7 +581,7 @@ def print_req_7(data_structs, results, deltaTime, condicion):
         print ("--------------------------------------------------------------------")
         print("\n")
         print("--------------------------------------------------------------------")
-        print("-- NO SE ENCONTRO NINGUN AEROPUERTO DENTRO DE UN RANGO DE 30 KM ----")
+        print("-- NO SE ENCONTRO ALGUN AEROPUERTO DENTRO DE UN RANGO DE 30 KM ----")
         print("--------------------------------------------------------------------")
         print("\n")
         print("--------------------------------------------------------------------")
@@ -795,13 +795,14 @@ if __name__ == "__main__":
             print_req_6(control, results, deltaTime)
 
         elif int(inputs) == 8:
-            origen_latitud = float(input('Ingrese la latitud de origen: '))
-            origen_longitud = float(input('Ingrese la longitud de origen: '))          #Polo sur: 90.0000° S, 45.0000° E
+            #origen_latitud = float(input('Ingrese la latitud de origen: '))
+            #origen_longitud = float(input('Ingrese la longitud de origen: '))          #Polo sur: 90.0000° S, 45.0000° E
             
-            destino_latitud = float(input('Ingrese la latitud de destino: '))          #Antartida: float("82.8628"), float("135.0000")
-            destino_longitud = float(input('Ingrese la longitud de destino: '))        #float("10.507688799813222"), float("-75.4706488665794")
+            #destino_latitud = float(input('Ingrese la latitud de destino: '))          #Antartida: float("82.8628"), float("135.0000")
+            #destino_longitud = float(input('Ingrese la longitud de destino: '))        #float("10.507688799813222"), float("-75.4706488665794")
             
             #origen_latitud, origen_longitud, destino_latitud, destino_longitud = float("4.601992771389502"), float("-74.06610470441926"), float("10.507688799813222"), float("-75.4706488665794")
+            origen_latitud, origen_longitud, destino_latitud, destino_longitud = float("4.71159"), float("-74.2469"), float("8.63333"), float("-77.35")
             results, deltaTime = controller.req_7(control, origen_latitud, origen_longitud, destino_latitud, destino_longitud)
             data = results[1]
             

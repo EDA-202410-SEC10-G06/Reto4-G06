@@ -1047,24 +1047,28 @@ def req_7(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
     desviacionlongitud = (30/78.62)
     desviacionLatitud = (30/111.32)
     
+    origin = None
+    destino = None
+    
     totalDistancia = 0
     totalTiempo = 0
     NumAirports = 0
     
     lstAirports  = lt.newList("ARRAY_LIST")
     
-    mapAirports = mp.newMap(numelements = 100,
-                     maptype="PROBING",              
-                    cmpfunction = compareKeysId)
-    
     origin, destino, totalDistancia = findCloseAirport(data_structs,origen_latitud, origen_longitud, destino_latitud, destino_longitud)
     
+    print(origin, destino, "---------")
+    
     if (origin != None and destino != None):
-             
+
         paths = minimumCostPaths(data_structs, origin, "AirportComercialConnections")
         path = minimumCostPath(data_structs, destino, paths)
         
+        print(path)
+        
         if path is not None:
+            print("SI HAY PATH")
             for edge in lt.iterator(path):
                 
                 totalDistancia += edge["weight"]
@@ -1083,6 +1087,7 @@ def req_7(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
             results = ["FOUNDPATH",[totalDistancia, NumAirports, lstAirports, origin, destino, totalTiempo]]
     
         else:
+            print("NOOOOO HAY PATH")
             closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin = findClosestAirport(data_structs,origen_latitud, origen_longitud, destino_latitud, destino_longitud)
             results =  ["NOPATH",[closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin]]
             
