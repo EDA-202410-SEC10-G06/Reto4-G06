@@ -694,10 +694,11 @@ def req_1(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
     lstAirports  = lt.newList("ARRAY_LIST")
     
     origin, destino, totalDistancia = findCloseAirport(data_structs,origen_latitud, origen_longitud, destino_latitud, destino_longitud)
-
-    search = searchPaths(data_structs, origin, 'dfs', "AirportComercialConnections")
-    
+        
     if (origin != None and destino != None):
+        
+        search = searchPaths(data_structs, origin, 'dfs', "AirportComercialConnections")
+        
         if hasSearchPath(data_structs, destino, 'dfs', search):
             
             path = searchPathTo(data_structs, destino, 'dfs', search)
@@ -745,9 +746,10 @@ def req_2(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
     
     origin, destino, totalDistancia = findCloseAirport(data_structs,origen_latitud, origen_longitud, destino_latitud, destino_longitud)
 
-    search = searchPaths(data_structs, origin, 'bfs', "AirportComercialConnections")
-    
     if (origin != None and destino != None):
+        
+        search = searchPaths(data_structs, origin, 'bfs', "AirportComercialConnections")
+        
         if hasSearchPath(data_structs, destino, 'bfs', search):
             
             path = searchPathTo(data_structs, destino, 'bfs', search)
@@ -1058,17 +1060,14 @@ def req_7(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
     
     origin, destino, totalDistancia = findCloseAirport(data_structs,origen_latitud, origen_longitud, destino_latitud, destino_longitud)
     
-    print(origin, destino, "---------")
-    
     if (origin != None and destino != None):
 
         paths = minimumCostPaths(data_structs, origin, "AirportComercialConnections")
         path = minimumCostPath(data_structs, destino, paths)
         
-        print(path)
         
         if path is not None:
-            print("SI HAY PATH")
+
             for edge in lt.iterator(path):
                 
                 totalDistancia += edge["weight"]
@@ -1087,7 +1086,7 @@ def req_7(data_structs, origen_latitud, origen_longitud, destino_latitud, destin
             results = ["FOUNDPATH",[totalDistancia, NumAirports, lstAirports, origin, destino, totalTiempo]]
     
         else:
-            print("NOOOOO HAY PATH")
+
             closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin = findClosestAirport(data_structs,origen_latitud, origen_longitud, destino_latitud, destino_longitud)
             results =  ["NOPATH",[closestAirportOrigin, closestAirportDestin, ClosestDistanceOrigin, ClosestDistanceDestin]]
             
